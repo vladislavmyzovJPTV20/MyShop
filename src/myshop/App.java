@@ -30,11 +30,11 @@ public class App {
         customer2.setMoney(100);
         
         Product product1 = new Product();
-        product1.setProductname("Мясо");
+        product1.setProductname("Meat");
         product1.setPrice(5);
         
         Product product2 = new Product();
-        product2.setProductname("Молоко");
+        product2.setProductname("Milk");
         product2.setPrice(1);
         
         History history1 = new History();
