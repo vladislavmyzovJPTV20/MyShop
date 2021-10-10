@@ -31,11 +31,11 @@ public class App {
         
         Product product1 = new Product();
         product1.setProductname("Meat");
-        product1.setPrice(5);
+        product1.setPrice(4.99);
         
         Product product2 = new Product();
         product2.setProductname("Milk");
-        product2.setPrice(1);
+        product2.setPrice(1.15);
         
         History history1 = new History();
         history1.setCustomer(customer1);
