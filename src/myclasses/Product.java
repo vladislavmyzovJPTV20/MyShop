@@ -31,7 +31,7 @@ public class Product {
 
     @Override
     public String toString() {
-        return "Product{" + "productname=" + productname + ", price=" + price + '}';
+        return "Список продуктов: " + "название продукта - " + productname + ", цена продукта - " + price;
     }
     
     

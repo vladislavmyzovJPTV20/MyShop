@@ -5,8 +5,7 @@
  */
 package myshop;
 
-import java.util.Calendar;
-import java.util.GregorianCalendar;
+import java.util.Scanner;
 import myclasses.Customer;
 import myclasses.History;
 import myclasses.Product;
@@ -16,39 +15,84 @@ import myclasses.Product;
  * @author Влад
  */
 public class App {
+    private Scanner scanner = new Scanner(System.in);
+    private Product[] products = new Product[10];
+    private Customer[] customers = new Customer[10];
     
     public void run(){
+        String repeat = "r";
+        do{
+            
+            System.out.println("Выберите номер задачи: ");
+            System.out.println("0: Выход из программы");
+            System.out.println("1: Добавить продукт");
+            System.out.println("2: Список продуктов");
+            System.out.println("3: Добавление покупателя");
+            System.out.println("4: Список покупателей");
+            
+            int task = scanner.nextInt(); scanner.nextLine();
+            switch(task) {
+                case 0:
+                    repeat = "q";
+                    System.out.println("Пока! :)");
+                    break;
+                case 1:
+                    System.out.println("----- Добавление продукта -----");
+                    for (int i = 0; i < products.length; i++) {
+                        if(products[i] == null) {
+                            products[i] = addProduct();
+                            break;
+                        }
+                    }
+                    break;
+                case 2:
+                    System.out.println("----- Список продуктов -----");
+                    for (int i = 0; i < products.length; i++) {
+                        if(products[i] != null) {
+                            System.out.println(products[i].toString());
+                        }
+                    }
+                    break;
+                case 3:
+                    System.out.println("----- Добавление покупателя -----");
+                    for (int i = 0; i < customers.length; i++) {
+                        if(customers[i] == null) {
+                            customers[i] = addCustomer();
+                            break;
+                        }
+                    }
+                    break;
+                case 4:
+                    System.out.println("----- Список покупателей -----");
+                    for (int i = 0; i < customers.length; i++) {
+                        if(customers[i] != null) {
+                            System.out.println(customers[i].toString());
+                        }
+                    }
+                    break;
+            }
+            
+        }while("r".equals(repeat));
         
-        Customer customer1 = new Customer();
-        customer1.setFirstname("Alexander");
-        customer1.setLastname("Drouz");
-        customer1.setMoney(50);
-        
-        Customer customer2 = new Customer();
-        customer2.setFirstname("Viktor");
-        customer2.setLastname("Korchnoi");
-        customer2.setMoney(100);
-        
-        Product product1 = new Product();
-        product1.setProductname("Meat");
-        product1.setPrice(4.99);
-        
-        Product product2 = new Product();
-        product2.setProductname("Milk");
-        product2.setPrice(1.15);
-        
-        History history1 = new History();
-        history1.setCustomer(customer1);
-        history1.setProduct(product1);
-        Calendar c = new GregorianCalendar();
-        history1.setPurchaseDate(c.getTime());
-        System.out.println("history1 - " + history1.toString());
-        
-        History history2 = new History();
-        history2.setCustomer(customer2);
-        history2.setProduct(product2);
-        c = new GregorianCalendar();
-        history2.setPurchaseDate(c.getTime());
-        System.out.println("history2 - " + history2.toString());
+    }
+    
+    private Product addProduct() {
+        Product product = new Product();
+        System.out.println("Введите название продукта: ");
+        product.setProductname(scanner.nextLine());
+        System.out.println("Введите цену продукта: ");
+        product.setPrice(scanner.nextDouble()); scanner.nextLine();
+        return product;
+    }
+    
+    private Customer addCustomer() {
+        Customer customer = new Customer();
+        System.out.println("Введите имя покупателя: ");
+        customer.setFirstname(scanner.nextLine());
+        System.out.println("Введите фамилию покупателя: ");
+        customer.setLastname(scanner.nextLine());
+        System.out.println("Введите количество денег данного покупателя: ");
+        customer.setMoney(scanner.nextDouble()); scanner.nextLine();
+        return customer;
     }
 }

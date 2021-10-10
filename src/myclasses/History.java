@@ -42,7 +42,7 @@ public class History {
 
     @Override
     public String toString() {
-        return "History{" + "customer=" + customer + ", product=" + product + ", purchaseDate=" + purchaseDate + '}';
+        return "История: " + "покупатель - " + customer + ", продукт - " + product + ", дата покупки - " + purchaseDate;
     }
     
     

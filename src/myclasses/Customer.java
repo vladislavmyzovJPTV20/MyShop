@@ -34,13 +34,14 @@ public class Customer {
         return money;
     }
 
-    public void setMoney(float money) {
+    public void setMoney(double money) {
         this.money = money;
     }
 
     @Override
     public String toString() {
-        return "Customer{" + "firstname=" + firstname + ", lastname=" + lastname + ", money=" + money + '}';
+        return "Список покупателей: " + "имя покупателя - " + firstname + ", фамилия покупателя - " + lastname + 
+                ", количество денег у покупателя - " + money;
     }
     
     
