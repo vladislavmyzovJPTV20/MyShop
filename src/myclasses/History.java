@@ -15,6 +15,7 @@ public class History {
     private Customer customer;
     private Product product;
     private Date purchaseDate;
+    private Date overdueDate;
 
     public Customer getCustomer() {
         return customer;
@@ -38,6 +39,14 @@ public class History {
 
     public void setPurchaseDate(Date purchaseDate) {
         this.purchaseDate = purchaseDate;
+    }
+    
+    public Date getOverdueDate() {
+        return overdueDate;
+    }
+
+    public void setOverdueDate(Date overdueDate) {
+        this.overdueDate = overdueDate;
     }
 
     @Override

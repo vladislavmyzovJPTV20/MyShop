@@ -20,6 +20,7 @@ public class App {
     private Scanner scanner = new Scanner(System.in);
     private Product[] products = new Product[10];
     private Customer[] customers = new Customer[10];
+    private History[] histories = new History[10];
     
     public void run(){
         String repeat = "r";
@@ -34,7 +35,6 @@ public class App {
             System.out.println("5: Купить продукт");
             System.out.println("6: Список купленных продуктов");
             System.out.println("7. Возврат просроченного продукта");
-            System.out.println("8: Расходы");
             
             int task = scanner.nextInt(); scanner.nextLine();
             switch(task) {
@@ -76,10 +76,56 @@ public class App {
                         }
                     }
                     break;
+                case 5:
+                    System.out.println("----- Купить продукт -----");
+                    for (int i = 0; i < histories.length; i++) {
+                        if(histories[i] == null) {
+                            histories[i] = addHistory();
+                            break;
+                        }
+                    }
+                    break;
+                case 6:
+                    System.out.println("----- Список купленных продуктов -----");
+                    printGivenProducts();
+                    System.out.println("*******************************************");
+                    break;
+                case 7:
+                    System.out.println("----- Возврат просроченного продукта -----");
+                    System.out.println("*******************************************");
+                    System.out.println("----- Список продуктов -----");
+                    printGivenProducts();
+                    System.out.print("Введите номер продукта, который хотите вернуть: ");
+                    int ProductNumber = scanner.nextInt(); scanner.nextLine();
+                    Calendar c = new GregorianCalendar();
+                    histories[ProductNumber - 1].setOverdueDate(c.getTime());
+                    System.out.printf("Продукт \"%s\" возвращён%n",histories[ProductNumber - 1].getProduct().getProductname());
+                    System.out.println("*******************************************");
+                    break;
+                default:
+                    System.out.println("Введите номер из списка!");
             }
             
         }while("r".equals(repeat));
         
+    }
+    
+    private void printGivenProducts() {
+        int n = 0;
+        for (int i = 0; i < histories.length; i++) {
+            if(histories[i] != null) {
+                System.out.printf("%d. Покупатель %s %s купил %s. Дата покупки: %s. %n",
+                        i + 1,
+                        histories[i].getCustomer().getFirstname(),
+                        histories[i].getCustomer().getLastname(),
+                        histories[i].getProduct().getProductname(),
+                        histories[i].getPurchaseDate().toString());
+                n++;
+            }
+            if(n < 1) {
+                System.out.println("Купленных товаров нет!");
+            }
+        }
     }
     
     private Product addProduct() {
@@ -119,7 +165,7 @@ public class App {
             }
         }
         
-        System.out.println("Введите номер продукта: ");
+        System.out.print("Введите номер продукта: ");
         int numberProduct = scanner.nextInt(); scanner.nextLine();
         
         System.out.println("Пронумерованный список покупателей");
@@ -129,7 +175,7 @@ public class App {
             }
         }
         
-        System.out.println("Введите номер покупателей: ");
+        System.out.print("Введите номер покупателей: ");
         int numberCustomer = scanner.nextInt(); scanner.nextLine();
         
         history.setCustomer(customers[numberCustomer-1]);
