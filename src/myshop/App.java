@@ -8,9 +8,11 @@ package myshop;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Scanner;
-import myclasses.Customer;
-import myclasses.History;
-import myclasses.Product;
+import entity.Customer;
+import entity.History;
+import entity.Product;
+import interfaces.Keeping;
+import tools.SaverToFile;
 
 /**
  *
@@ -21,6 +23,14 @@ public class App {
     private Product[] products = new Product[10];
     private Customer[] customers = new Customer[10];
     private History[] histories = new History[10];
+    private Keeping keeper = new SaverToFile();
+
+    public App() {
+        products = keeper.loadProducts();
+        customers = keeper.loadCustomers();
+        histories = keeper.loadHistory();
+    }
+    
     
     public void run(){
         String repeat = "r";
@@ -47,6 +57,7 @@ public class App {
                     for (int i = 0; i < products.length; i++) {
                         if(products[i] == null) {
                             products[i] = addProduct();
+                            keeper.saveProducts(products);
                             break;
                         }
                     }
@@ -64,6 +75,7 @@ public class App {
                     for (int i = 0; i < customers.length; i++) {
                         if(customers[i] == null) {
                             customers[i] = addCustomer();
+                            keeper.saveCustomers(customers);
                             break;
                         }
                     }
@@ -81,6 +93,7 @@ public class App {
                     for (int i = 0; i < histories.length; i++) {
                         if(histories[i] == null) {
                             histories[i] = addHistory();
+                            keeper.saveHistories(histories);
                             break;
                         }
                     }

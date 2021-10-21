@@ -3,15 +3,16 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package myclasses;
+package entity;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  *
  * @author Влад
  */
-public class History {
+public class History implements Serializable{
     private Customer customer;
     private Product product;
     private Date purchaseDate;

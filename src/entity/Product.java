@@ -3,13 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package myclasses;
+package entity;
+
+import java.io.Serializable;
 
 /**
  *
  * @author Влад
  */
-public class Product {
+public class Product implements Serializable{
     private String productname;
     private double price;
 
