@@ -112,6 +112,7 @@ public class App {
                     int ProductNumber = scanner.nextInt(); scanner.nextLine();
                     Calendar c = new GregorianCalendar();
                     histories[ProductNumber - 1].setOverdueDate(c.getTime());
+                    keeper.saveHistories(histories);
                     System.out.printf("Продукт \"%s\" возвращён%n",histories[ProductNumber - 1].getProduct().getProductname());
                     System.out.println("*******************************************");
                     break;
