@@ -15,6 +15,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -25,7 +27,7 @@ import java.util.logging.Logger;
 public class SaverToFile implements Keeping{
 
     @Override
-    public void saveProducts(Product[] products) {
+    public void saveProducts(List<Product> products) {
         FileOutputStream fos = null;
         ObjectOutputStream oos = null;
         
@@ -42,14 +44,14 @@ public class SaverToFile implements Keeping{
     }
 
     @Override
-    public Product[] loadProducts() {
-        Product[] products = new Product[10];
+    public List<Product> loadProducts() {
+        List<Product> products = new ArrayList<>();
         FileInputStream fis = null;
         ObjectInputStream ois = null;
         try {
             fis = new FileInputStream("products");
             ois = new ObjectInputStream(fis);
-            products = (Product[]) ois.readObject();
+            products = (List<Product>) ois.readObject();
         } catch (FileNotFoundException ex) {
             Logger.getLogger(SaverToFile.class.getName()).log(Level.INFO, "Файл products ещё не создан", ex);
         } catch (IOException ex) {
@@ -62,7 +64,7 @@ public class SaverToFile implements Keeping{
     }
 
     @Override
-    public void saveCustomers(Customer[] customers) {
+    public void saveCustomers(List<Customer> customers) {
         FileOutputStream fos = null;
         ObjectOutputStream oos = null;
         
@@ -79,14 +81,14 @@ public class SaverToFile implements Keeping{
     }
 
     @Override
-    public Customer[] loadCustomers() {
-        Customer[] customers = new Customer[10];
+    public List<Customer> loadCustomers() {
+        List<Customer> customers = new ArrayList<>();
         FileInputStream fis = null;
         ObjectInputStream ois = null;
         try {
             fis = new FileInputStream("customers");
             ois = new ObjectInputStream(fis);
-            customers = (Customer[]) ois.readObject();
+            customers = (List<Customer>) ois.readObject();
         } catch (FileNotFoundException ex) {
             Logger.getLogger(SaverToFile.class.getName()).log(Level.INFO, "Файл customers ещё не создан", ex);
         } catch (IOException ex) {
@@ -99,7 +101,7 @@ public class SaverToFile implements Keeping{
     }
 
     @Override
-    public void saveHistories(History[] histories) {
+    public void saveHistories(List<History> histories) {
         FileOutputStream fos = null;
         ObjectOutputStream oos = null;
         
@@ -116,14 +118,14 @@ public class SaverToFile implements Keeping{
     }
 
     @Override
-    public History[] loadHistory() {
-        History[] histories = new History[10];
+    public List<History> loadHistory() {
+        List<History> histories = new ArrayList<>();
         FileInputStream fis = null;
         ObjectInputStream ois = null;
         try {
             fis = new FileInputStream("histories");
             ois = new ObjectInputStream(fis);
-            histories = (History[]) ois.readObject();
+            histories = (List<History>) ois.readObject();
         } catch (FileNotFoundException ex) {
             Logger.getLogger(SaverToFile.class.getName()).log(Level.INFO, "Файл histories ещё не создан", ex);
         } catch (IOException ex) {

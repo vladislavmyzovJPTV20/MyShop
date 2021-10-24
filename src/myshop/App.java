@@ -12,6 +12,8 @@ import entity.Customer;
 import entity.History;
 import entity.Product;
 import interfaces.Keeping;
+import java.util.ArrayList;
+import java.util.List;
 import tools.SaverToFile;
 
 /**
@@ -20,9 +22,9 @@ import tools.SaverToFile;
  */
 public class App {
     private Scanner scanner = new Scanner(System.in);
-    private Product[] products = new Product[10];
-    private Customer[] customers = new Customer[10];
-    private History[] histories = new History[10];
+    private List<Product> products = new ArrayList<>();
+    private List<Customer> customers = new ArrayList<>();
+    private List<History> histories = new ArrayList<>();
     private Keeping keeper = new SaverToFile();
 
     public App() {
@@ -54,48 +56,33 @@ public class App {
                     break;
                 case 1:
                     System.out.println("----- Добавление продукта -----");
-                    for (int i = 0; i < products.length; i++) {
-                        if(products[i] == null) {
-                            products[i] = addProduct();
-                            keeper.saveProducts(products);
-                            break;
-                        }
-                    }
+                    products.add(addProduct());
+                    keeper.saveProducts(products);
                     break;
                 case 2:
                     System.out.println("----- Список продуктов -----");
-                    for (int i = 0; i < products.length; i++) {
-                        if(products[i] != null) {
-                            System.out.println(products[i].toString());
-                        }
-                    }
+                    printListProducts();
                     break;
                 case 3:
                     System.out.println("----- Добавление покупателя -----");
-                    for (int i = 0; i < customers.length; i++) {
-                        if(customers[i] == null) {
-                            customers[i] = addCustomer();
-                            keeper.saveCustomers(customers);
-                            break;
-                        }
-                    }
+                    customers.add(addCustomer());
+                    keeper.saveCustomers(customers);
                     break;
                 case 4:
                     System.out.println("----- Список покупателей -----");
-                    for (int i = 0; i < customers.length; i++) {
-                        if(customers[i] != null) {
-                            System.out.println(customers[i].toString());
+                    for (int i = 0; i < customers.size(); i++) {
+                        if(customers.get(i) != null) {
+                            System.out.println(customers.get(i).toString());
                         }
                     }
                     break;
                 case 5:
                     System.out.println("----- Купить продукт -----");
-                    for (int i = 0; i < histories.length; i++) {
-                        if(histories[i] == null) {
-                            histories[i] = addHistory();
-                            keeper.saveHistories(histories);
-                            break;
-                        }
+                    History history = addHistory();
+                    if(history != null) {
+                        histories.add(history);
+                        keeper.saveHistories(histories);
+                        keeper.saveProducts(products);
                     }
                     break;
                 case 6:
@@ -108,12 +95,24 @@ public class App {
                     System.out.println("*******************************************");
                     System.out.println("----- Список продуктов -----");
                     printGivenProducts();
+                    if(!printGivenProducts()){
+                        break;
+                    }
                     System.out.print("Введите номер продукта, который хотите вернуть: ");
                     int ProductNumber = scanner.nextInt(); scanner.nextLine();
                     Calendar c = new GregorianCalendar();
-                    histories[ProductNumber - 1].setOverdueDate(c.getTime());
-                    System.out.printf("Продукт \"%s\" возвращён%n",histories[ProductNumber - 1].getProduct().getProductname());
-                    System.out.println("*******************************************");
+                    if(histories.get(ProductNumber - 1).getProduct().getCount() < histories.get(ProductNumber - 1).getProduct().getQuantity()) {
+                        histories.get(ProductNumber - 1).setOverdueDate(c.getTime());
+                        histories.get(ProductNumber - 1).getProduct().setCount(histories.get(ProductNumber - 1).getProduct().getCount()+1);
+                        
+                    }else{
+                        System.out.println("Все экземпляыры продукта в магазине");
+                        break;
+                    }
+                    
+                    keeper.saveHistories(histories);
+                    keeper.saveProducts(products);
+                    System.out.printf("Продукт \"%s\" возвращен%n", histories.get(ProductNumber - 1).getProduct().getProductname());
                     break;
                 default:
                     System.out.println("Введите номер из списка!");
@@ -123,22 +122,24 @@ public class App {
         
     }
     
-    private void printGivenProducts() {
+    private boolean printGivenProducts() {
         int n = 0;
-        for (int i = 0; i < histories.length; i++) {
-            if(histories[i] != null) {
+        for (int i = 0; i < histories.size(); i++) {
+            if (histories.get(i) != null && histories.get(i).getOverdueDate() == null && histories.get(i).getProduct().getCount() < histories.get(i).getProduct().getQuantity()) {
                 System.out.printf("%d. Покупатель %s %s купил %s. Дата покупки: %s. %n",
-                        i + 1,
-                        histories[i].getCustomer().getFirstname(),
-                        histories[i].getCustomer().getLastname(),
-                        histories[i].getProduct().getProductname(),
-                        histories[i].getPurchaseDate().toString());
+                        i,
+                        histories.get(i).getCustomer().getFirstname(),
+                        histories.get(i).getCustomer().getLastname(),
+                        histories.get(i).getProduct().getProductname(),
+                        histories.get(i).getPurchaseDate().toString());
                 n++;
             }
-            if(n < 1) {
-                System.out.println("Купленных товаров нет!");
-            }
         }
+        if(n < 1) {
+            System.out.println("Купленных товаров нет!");
+            return false;
+        }
+        return true;
     }
     
     private Product addProduct() {
@@ -147,6 +148,9 @@ public class App {
         product.setProductname(scanner.nextLine());
         System.out.println("Введите цену продукта: ");
         product.setPrice(scanner.nextDouble()); scanner.nextLine();
+        System.out.print("Введите количество экзамепляров продукта: ");
+        product.setQuantity(scanner.nextInt()); scanner.nextLine();
+        product.setCount(product.getQuantity());
         return product;
     }
     
@@ -163,6 +167,7 @@ public class App {
     
     private History addHistory() {
         History history = new History();
+        Product product = new Product();
         /**
          * 1. Вывести пронумерованный список продуктов магазина
          * 2. Попросить пользователя выбрать номер продукта
@@ -171,30 +176,44 @@ public class App {
          * 5. Сгенерировать текущую дату покупки продукта
          * 6. Инициировать объект History (задать состояние)
          */
-        System.out.println("Пронумерованный список продуктов магазина");
-        for (int i = 0; i < products.length; i++) {
-            if(products[i] != null) {
-                System.out.println(i+1+". "+products[i].toString());
+        System.out.print("Пронумерованный список продуктов магазина: ");
+        for (int i = 0; i < products.size(); i++) {
+            if (products.get(i) != null && products.get(i).getCount() > 0) {
+                System.out.println(i+1+". "+products.get(i).toString());
+                
+                System.out.print("Введите номер продукта: ");
+                int numberProduct = scanner.nextInt(); scanner.nextLine();
+        
+                System.out.println("Пронумерованный список покупателей");
+                for (int j = 0; j < customers.size(); j++) {
+                    if(customers.get(j) != null) {
+                        System.out.println(j+1+". "+customers.get(j).toString());
+                    }
+                }
+        
+                System.out.print("Введите номер покупателей: ");
+                int numberCustomer = scanner.nextInt(); scanner.nextLine();
+        
+                history.setProduct(products.get(numberProduct - 1));
+                if(history.getProduct().getCount() > 0){
+                    history.getProduct().setCount(history.getProduct().getCount() - 1);
+                }
+                history.setCustomer(customers.get(numberCustomer - 1));
+                Calendar c = new GregorianCalendar();
+                history.setPurchaseDate(c.getTime());
+            }else{
+                System.out.print("пуст");
+                break;
             }
         }
-        
-        System.out.print("Введите номер продукта: ");
-        int numberProduct = scanner.nextInt(); scanner.nextLine();
-        
-        System.out.println("Пронумерованный список покупателей");
-        for (int i = 0; i < customers.length; i++) {
-            if(customers[i] != null) {
-                System.out.println(i+1+". "+customers[i].toString());
-            }
-        }
-        
-        System.out.print("Введите номер покупателей: ");
-        int numberCustomer = scanner.nextInt(); scanner.nextLine();
-        
-        history.setCustomer(customers[numberCustomer-1]);
-        history.setProduct(products[numberProduct-1]);
-        Calendar c = new GregorianCalendar();
-        history.setPurchaseDate(c.getTime());
         return history;
+    }
+    
+    private void printListProducts() {
+        for (int i = 0; i < products.size(); i++) {
+            if (products.get(i) != null && products.get(i).getCount() > 0) {
+                System.out.println(products.get(i).toString());
+            }
+        }
     }
 }

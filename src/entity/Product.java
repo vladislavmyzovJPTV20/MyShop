@@ -14,6 +14,8 @@ import java.io.Serializable;
 public class Product implements Serializable{
     private String productname;
     private double price;
+    private int quantity;
+    private int count;
 
     public String getProductname() {
         return productname;
@@ -31,10 +33,29 @@ public class Product implements Serializable{
         this.price = price;
     }
 
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
+    }
+
     @Override
     public String toString() {
-        return "Список продуктов: " + "название продукта - " + productname + ", цена продукта - " + price;
+        return "Product{"
+                + "productname=" + productname
+                + ", price=" + price
+                + ", quantity=" + quantity
+                + ", count=" + count
+                + '}';
     }
-    
-    
 }

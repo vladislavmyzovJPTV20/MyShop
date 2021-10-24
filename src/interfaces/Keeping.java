@@ -8,16 +8,17 @@ package interfaces;
 import entity.Customer;
 import entity.History;
 import entity.Product;
+import java.util.List;
 
 /**
  *
  * @author Влад
  */
 public interface Keeping {
-    public void saveProducts(Product[] products);
-    public Product[] loadProducts();
-    public void saveCustomers(Customer[] customers);
-    public Customer[] loadCustomers();
-    public void saveHistories(History[] histories);
-    public History[] loadHistory();
+    public void saveProducts(List<Product> products);
+    public List<Product> loadProducts();
+    public void saveCustomers(List<Customer> customers);
+    public List<Customer> loadCustomers();
+    public void saveHistories(List<History> histories);
+    public List<History> loadHistory();
 }
