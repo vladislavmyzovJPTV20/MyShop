@@ -6,6 +6,7 @@
 package entity;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.Date;
 
 /**
@@ -17,6 +18,7 @@ public class History implements Serializable{
     private Product product;
     private Date purchaseDate;
     private Date overdueDate;
+    private LocalDate LocalReturnedDate;
 
     public Customer getCustomer() {
         return customer;
@@ -50,10 +52,16 @@ public class History implements Serializable{
         this.overdueDate = overdueDate;
     }
 
+    public LocalDate getLocalReturnedDate() {
+        return LocalReturnedDate;
+    }
+
+    public void setLocalReturnedDate(LocalDate LocalReturnedDate) {
+        this.LocalReturnedDate = LocalReturnedDate;
+    }
+
     @Override
     public String toString() {
-        return "История: " + "покупатель - " + customer + ", продукт - " + product + ", дата покупки - " + purchaseDate;
+        return "History{" + "customer=" + customer + ", product=" + product + ", purchaseDate=" + purchaseDate + ", overdueDate=" + overdueDate + ", LocalReturnedDate=" + LocalReturnedDate + '}';
     }
-    
-    
 }

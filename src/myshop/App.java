@@ -12,6 +12,8 @@ import entity.Customer;
 import entity.History;
 import entity.Product;
 import interfaces.Keeping;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import tools.SaverToFile;
@@ -127,11 +129,12 @@ public class App {
         for (int i = 0; i < histories.size(); i++) {
             if (histories.get(i) != null && histories.get(i).getOverdueDate() == null && histories.get(i).getProduct().getCount() < histories.get(i).getProduct().getQuantity()) {
                 System.out.printf("%d. Покупатель %s %s купил %s. Дата покупки: %s. %n",
-                        i,
+                        i+1,
                         histories.get(i).getCustomer().getFirstname(),
                         histories.get(i).getCustomer().getLastname(),
                         histories.get(i).getProduct().getProductname(),
                         histories.get(i).getPurchaseDate().toString());
+                        System.out.println("Предполагаемое время возврата книги: "+histories.get(i).getLocalReturnedDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
                 n++;
             }
         }
@@ -201,6 +204,9 @@ public class App {
                 history.setCustomer(customers.get(numberCustomer - 1));
                 Calendar c = new GregorianCalendar();
                 history.setPurchaseDate(c.getTime());
+                LocalDate localdate = LocalDate.now();
+                localdate = localdate.plusWeeks(2);
+                history.setLocalReturnedDate(localdate);
             }else{
                 System.out.print("пуст");
                 break;
