@@ -134,7 +134,7 @@ public class App {
                         histories.get(i).getCustomer().getLastname(),
                         histories.get(i).getProduct().getProductname(),
                         histories.get(i).getPurchaseDate().toString());
-                        System.out.println("Предполагаемое время возврата книги: "+histories.get(i).getLocalReturnedDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
+                        System.out.println("Срок годности товара: "+histories.get(i).getLocalReturnedDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
                 n++;
             }
         }
