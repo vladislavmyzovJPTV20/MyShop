@@ -15,7 +15,9 @@ import interfaces.Keeping;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import tools.SaverToFile;
 
 /**
@@ -50,160 +52,164 @@ public class App {
             System.out.println("6: Список купленных продуктов");
             System.out.println("7. Возврат просроченного продукта");
             
-            int task = scanner.nextInt(); scanner.nextLine();
-            switch(task) {
+            int task = scanner.nextInt();
+            scanner.nextLine();
+            switch (task) {
                 case 0:
                     repeat = "q";
                     System.out.println("Пока! :)");
                     break;
                 case 1:
-                    System.out.println("----- Добавление продукта -----");
-                    products.add(addProduct());
-                    keeper.saveProducts(products);
+                    System.out.println("---- Добавление продукта ----");
+                    addProduct();
+                    System.out.println("-----------------------");
                     break;
                 case 2:
-                    System.out.println("----- Список продуктов -----");
+                    System.out.println("---- Список продуктов -----");
                     printListProducts();
+                    System.out.println("-----------------------");
                     break;
                 case 3:
-                    System.out.println("----- Добавление покупателя -----");
-                    customers.add(addCustomer());
-                    keeper.saveCustomers(customers);
+                    addCustomer();
                     break;
                 case 4:
-                    System.out.println("----- Список покупателей -----");
-                    for (int i = 0; i < customers.size(); i++) {
-                        if(customers.get(i) != null) {
-                            System.out.println(customers.get(i).toString());
-                        }
-                    }
+                    printListCustomers();
                     break;
                 case 5:
-                    System.out.println("----- Купить продукт -----");
-                    History history = addHistory();
-                    if(history != null) {
-                        histories.add(history);
-                        keeper.saveHistories(histories);
-                        keeper.saveProducts(products);
-                    }
+                    addHistory();
+                    System.out.println("-----------------------");
                     break;
                 case 6:
                     System.out.println("----- Список купленных продуктов -----");
                     printGivenProducts();
-                    System.out.println("*******************************************");
+                    System.out.println("-----------------------");
                     break;
                 case 7:
-                    System.out.println("----- Возврат просроченного продукта -----");
-                    System.out.println("*******************************************");
-                    System.out.println("----- Список продуктов -----");
-                    printGivenProducts();
-                    if(!printGivenProducts()){
-                        break;
-                    }
-                    System.out.print("Введите номер продукта, который хотите вернуть: ");
-                    int ProductNumber = scanner.nextInt(); scanner.nextLine();
-                    Calendar c = new GregorianCalendar();
-                    if(histories.get(ProductNumber - 1).getProduct().getCount() < histories.get(ProductNumber - 1).getProduct().getQuantity()) {
-                        histories.get(ProductNumber - 1).setOverdueDate(c.getTime());
-                        histories.get(ProductNumber - 1).getProduct().setCount(histories.get(ProductNumber - 1).getProduct().getCount()+1);
-                        
-                    }else{
-                        System.out.println("Все экземпляыры продукта в магазине");
-                        break;
-                    }
-                    
-                    keeper.saveHistories(histories);
-                    keeper.saveProducts(products);
-                    System.out.printf("Продукт \"%s\" возвращен%n", histories.get(ProductNumber - 1).getProduct().getProductname());
+                    System.out.println("---- Возврат просроченного продукта -----");
+                    returnProduct();
                     break;
                 default:
                     System.out.println("Введите номер из списка!");
             }
-            
-        }while("r".equals(repeat));
-        
+
+        } while ("r".equals(repeat));
     }
     
-    private boolean printGivenProducts() {
-        int n = 0;
-        for (int i = 0; i < histories.size(); i++) {
-            if (histories.get(i) != null && histories.get(i).getOverdueDate() == null && histories.get(i).getProduct().getCount() < histories.get(i).getProduct().getQuantity()) {
-                System.out.printf("%d. Покупатель %s %s купил %s. Дата покупки: %s. %n",
-                        i+1,
-                        histories.get(i).getCustomer().getFirstname(),
-                        histories.get(i).getCustomer().getLastname(),
-                        histories.get(i).getProduct().getProductname(),
-                        histories.get(i).getPurchaseDate().toString());
-                        System.out.println("Срок годности товара: "+histories.get(i).getLocalReturnedDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
-                n++;
+    private boolean quit(){
+        System.out.println("Чтобы закончить операцию нажмите \"q\", для продолжения любой другой символ");
+        String quit = scanner.nextLine();
+        if("q".equals(quit)) return true;
+        return false;
+    }
+    
+    private void returnProduct() {
+        System.out.println("Вернуть продукт: ");
+        if(quit()) return;
+        Set<Integer> numbersGivenProducts = printGivenProducts();
+        if(numbersGivenProducts.isEmpty()){
+            return;
+        }
+        int historyNumber = insertNumber(numbersGivenProducts);
+        Calendar c = new GregorianCalendar();
+        histories.get(historyNumber - 1).setOverdueDate(c.getTime());
+        for (int i = 0; i < products.size(); i++) {
+            if(products.get(i).getProductname().equals(histories.get(historyNumber - 1).getProduct().getProductname())){
+                products.get(i).setCount(products.get(i).getCount()+1);
             }
         }
-        if(n < 1) {
-            System.out.println("Купленных товаров нет!");
-            return false;
+        keeper.saveProducts(products);
+        keeper.saveHistories(histories);
+    }
+    
+    private Set<Integer> printGivenProducts(){
+        System.out.println("Список выданных продуктов: ");
+        Set<Integer> setNumberGivenProducts = new HashSet<>();
+        for (int i = 0; i < histories.size(); i++) {
+            //если history не null и книга не возварщена и книг в наличии меньше
+            // чем записано в quantity -
+            // печатаем книгу
+            if(histories.get(i) != null 
+                    && histories.get(i).getOverdueDate() == null
+                    && histories.get(i).getProduct().getCount()
+                        <histories.get(i).getProduct().getQuantity()
+                    ){
+                System.out.printf("%d. Продукт %s купил %s %s%n",
+                        i+1,
+                        histories.get(i).getProduct().getProductname(),
+                        histories.get(i).getCustomer().getFirstname(),
+                        histories.get(i).getCustomer().getLastname()
+                );
+                setNumberGivenProducts.add(i+1);
+            }
         }
-        return true;
+        if(setNumberGivenProducts.isEmpty()){
+            System.out.println("Купленных продуктов нет");
+        }
+        return setNumberGivenProducts;
     }
     
-    private Product addProduct() {
+    private void addProduct() {
         Product product = new Product();
-        System.out.println("Введите название продукта: ");
+        System.out.print("Введите название продукта: ");
         product.setProductname(scanner.nextLine());
-        System.out.println("Введите цену продукта: ");
-        product.setPrice(scanner.nextDouble()); scanner.nextLine();
+        System.out.print("Введите цену продукта: ");
+        product.setPrice(getNumber());
         System.out.print("Введите количество экзамепляров продукта: ");
-        product.setQuantity(scanner.nextInt()); scanner.nextLine();
+        product.setQuantity(getNumber());
         product.setCount(product.getQuantity());
-        return product;
+        
+        products.add(product);
+        keeper.saveProducts(products);
     }
     
-    private Customer addCustomer() {
+    private void addCustomer() {
         Customer customer = new Customer();
-        System.out.println("Введите имя покупателя: ");
+        System.out.println("Введите имя читателя: ");
         customer.setFirstname(scanner.nextLine());
-        System.out.println("Введите фамилию покупателя: ");
+        System.out.println("Введите фамилию читателя: ");
         customer.setLastname(scanner.nextLine());
-        System.out.println("Введите количество денег данного покупателя: ");
-        customer.setMoney(scanner.nextDouble()); scanner.nextLine();
-        return customer;
+        System.out.println("Введите количество денег читателя: ");
+        customer.setMoney(getNumber());
+        customers.add(customer);
+        keeper.saveCustomers(customers);
     }
     
-    private History addHistory() {
+    private void addHistory() {
         History history = new History();
         Product product = new Product();
         /**
-         * 1. Вывести пронумерованный список продуктов магазина
-         * 2. Попросить пользователя выбрать номер продукта
-         * 3. Вывести пронумерованный список покупателей
-         * 4. Попросить пользователя выбрать номер покупателя
-         * 5. Сгенерировать текущую дату покупки продукта
-         * 6. Инициировать объект History (задать состояние)
+         * 1. Вывести пронумерованный список книг библиотеки
+         * 2. Попросить пользователя выбрать номер книги 
+         * 3. Вывести пронумерованный список читателей
+         * 4. Попросить пользователя выбрать номер читателя
+         * 5. Сгенерировать текущую дату выдачи 6. Инициировать объект History (задать состояние)
          */
-        System.out.print("Пронумерованный список продуктов магазина: ");
+        
+        System.out.println("-------- Купить продукт --------");
+        
+        System.out.println("Список продуктов: ");
+        Set<Integer> setNumbersProducts = printListProducts();
+        if(setNumbersProducts.isEmpty()){
+            return;
+        }
         for (int i = 0; i < products.size(); i++) {
             if (products.get(i) != null && products.get(i).getCount() > 0) {
-                System.out.println(i+1+". "+products.get(i).toString());
+                System.out.println(i + 1 + ". " + products.get(i).toString());
                 
                 System.out.print("Введите номер продукта: ");
-                int numberProduct = scanner.nextInt(); scanner.nextLine();
-        
-                System.out.println("Пронумерованный список покупателей");
-                for (int j = 0; j < customers.size(); j++) {
-                    if(customers.get(j) != null) {
-                        System.out.println(j+1+". "+customers.get(j).toString());
-                    }
-                }
-        
-                System.out.print("Введите номер покупателей: ");
-                int numberCustomer = scanner.nextInt(); scanner.nextLine();
-        
+                int numberProduct = insertNumber(setNumbersProducts);
+
+                System.out.println("Список покупателей");
+                Set<Integer> setNumbersCustomers = printListCustomers();
+                System.out.print("Введите номер покупателя: ");
+                int numberCustomer = insertNumber(setNumbersCustomers);
                 history.setProduct(products.get(numberProduct - 1));
                 if(history.getProduct().getCount() > 0){
                     history.getProduct().setCount(history.getProduct().getCount() - 1);
                 }
                 history.setCustomer(customers.get(numberCustomer - 1));
                 Calendar c = new GregorianCalendar();
-                history.setPurchaseDate(c.getTime());
+                history.setOverdueDate(c.getTime());
                 LocalDate localdate = LocalDate.now();
                 localdate = localdate.plusWeeks(2);
                 history.setLocalReturnedDate(localdate);
@@ -212,14 +218,57 @@ public class App {
                 break;
             }
         }
-        return history;
     }
     
-    private void printListProducts() {
+    private Set<Integer> printListProducts() {
+        System.out.println("Список продуктов: ");
+        products = keeper.loadProducts();
+        Set<Integer> setNumbersProducts = new HashSet<>();
         for (int i = 0; i < products.size(); i++) {
             if (products.get(i) != null && products.get(i).getCount() > 0) {
-                System.out.println(products.get(i).toString());
+                System.out.printf("%d. Продукт - %s. В наличии экземпляров: %d%n",i+1,products.get(i).getProductname(),products.get(i).getCount());
+                setNumbersProducts.add(i+1);
+            }else if(products.get(i) != null){
+                System.out.printf("%d. Продукта %s. нет в наличии.",i+1,products.get(i).getProductname());
+                System.out.println("Предполагаемая дата просрочки товара: "+histories.get(i).getLocalReturnedDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
             }
         }
+        return setNumbersProducts;
+    }
+    
+    private int getNumber() {
+        do{
+            try{
+                String strNumber = scanner.nextLine();
+                return Integer.parseInt(strNumber);
+            } catch (Exception e) {
+                System.out.println("Попробуй еще раз: ");
+            }
+        }while(true);
+    }
+    
+    private int insertNumber(Set<Integer> setNumbers) {
+        do{
+            int historyNumber = getNumber();
+            if(setNumbers.contains(historyNumber)){
+                return historyNumber;
+            }
+            System.out.println("Попробуй еще раз: ");
+        }while(true);
+    }
+    
+    private Set<Integer> printListCustomers() {
+        Set<Integer> setNumbersCustomers = new HashSet<>();
+        System.out.println("Список покупателей: ");
+        for (int i = 0; i < customers.size(); i++) {
+            if(customers.get(i) != null){
+                System.out.printf("%d. %s%n"
+                        ,i+1
+                        ,customers.get(i).toString()
+                );
+                setNumbersCustomers.add(i+1);
+            }
+        }
+        return setNumbersCustomers;
     }
 }
