@@ -38,20 +38,20 @@ public class App {
     }
     
     
-    public void run(){
+     public void run() {
         String repeat = "r";
-        do{
-            
+        do {
+
             System.out.println("Выберите номер задачи: ");
             System.out.println("0: Выход из программы");
             System.out.println("1: Добавить продукт");
             System.out.println("2: Список продуктов");
-            System.out.println("3: Добавление покупателя");
+            System.out.println("3: Добавить покупателя");
             System.out.println("4: Список покупателей");
             System.out.println("5: Купить продукт");
             System.out.println("6: Список купленных продуктов");
-            System.out.println("7. Возврат просроченного продукта");
-            
+            System.out.println("7: Возврат просроченного продукта");
+
             int task = scanner.nextInt();
             scanner.nextLine();
             switch (task) {
@@ -60,7 +60,7 @@ public class App {
                     System.out.println("Пока! :)");
                     break;
                 case 1:
-                    System.out.println("---- Добавление продукта ----");
+                    System.out.println("---- Добавить продукт ----");
                     addProduct();
                     System.out.println("-----------------------");
                     break;
@@ -94,7 +94,6 @@ public class App {
 
         } while ("r".equals(repeat));
     }
-    
     private boolean quit(){
         System.out.println("Чтобы закончить операцию нажмите \"q\", для продолжения любой другой символ");
         String quit = scanner.nextLine();
@@ -103,7 +102,7 @@ public class App {
     }
     
     private void returnProduct() {
-        System.out.println("Вернуть продукт: ");
+        System.out.println("Вернуть просроченный продукт: ");
         if(quit()) return;
         Set<Integer> numbersGivenProducts = printGivenProducts();
         if(numbersGivenProducts.isEmpty()){
@@ -113,16 +112,16 @@ public class App {
         Calendar c = new GregorianCalendar();
         histories.get(historyNumber - 1).setOverdueDate(c.getTime());
         for (int i = 0; i < products.size(); i++) {
-            if(products.get(i).getProductname().equals(histories.get(historyNumber - 1).getProduct().getProductname())){
+            if(products.get(i).getProductname().equals(histories.get(historyNumber-1).getProduct().getProductname())){
                 products.get(i).setCount(products.get(i).getCount()+1);
             }
         }
         keeper.saveProducts(products);
         keeper.saveHistories(histories);
     }
-    
-    private Set<Integer> printGivenProducts(){
-        System.out.println("Список выданных продуктов: ");
+
+  private Set<Integer> printGivenProducts(){
+        System.out.println("Список купленных продуктов: ");
         Set<Integer> setNumberGivenProducts = new HashSet<>();
         for (int i = 0; i < histories.size(); i++) {
             //если history не null и книга не возварщена и книг в наличии меньше
@@ -133,7 +132,7 @@ public class App {
                     && histories.get(i).getProduct().getCount()
                         <histories.get(i).getProduct().getQuantity()
                     ){
-                System.out.printf("%d. Продукт %s купил %s %s%n",
+                System.out.printf("%d. Продукт %s купил %s %s.",
                         i+1,
                         histories.get(i).getProduct().getProductname(),
                         histories.get(i).getCustomer().getFirstname(),
@@ -147,12 +146,12 @@ public class App {
         }
         return setNumberGivenProducts;
     }
-    
+
     private void addProduct() {
         Product product = new Product();
         System.out.print("Введите название продукта: ");
         product.setProductname(scanner.nextLine());
-        System.out.print("Введите цену продукта: ");
+        System.out.print("Введите стоимость продукта: ");
         product.setPrice(getNumber());
         System.out.print("Введите количество экзамепляров продукта: ");
         product.setQuantity(getNumber());
@@ -161,19 +160,19 @@ public class App {
         products.add(product);
         keeper.saveProducts(products);
     }
-    
+
     private void addCustomer() {
         Customer customer = new Customer();
-        System.out.println("Введите имя читателя: ");
+        System.out.println("Введите имя покупателя: ");
         customer.setFirstname(scanner.nextLine());
-        System.out.println("Введите фамилию читателя: ");
+        System.out.println("Введите фамилию покупателя: ");
         customer.setLastname(scanner.nextLine());
-        System.out.println("Введите количество денег читателя: ");
+        System.out.println("Введите количество денег покупателя: ");
         customer.setMoney(getNumber());
         customers.add(customer);
         keeper.saveCustomers(customers);
     }
-    
+
     private void addHistory() {
         History history = new History();
         Product product = new Product();
@@ -199,17 +198,17 @@ public class App {
                 System.out.print("Введите номер продукта: ");
                 int numberProduct = insertNumber(setNumbersProducts);
 
-                System.out.println("Список покупателей");
+                System.out.println("Список покупателей: ");
                 Set<Integer> setNumbersCustomers = printListCustomers();
                 System.out.print("Введите номер покупателя: ");
                 int numberCustomer = insertNumber(setNumbersCustomers);
                 history.setProduct(products.get(numberProduct - 1));
-                if(history.getProduct().getCount() > 0){
-                    history.getProduct().setCount(history.getProduct().getCount() - 1);
+                if(products.get(numberProduct - 1).getCount() > 0){
+                    products.get(numberProduct - 1).setCount(products.get(numberProduct - 1).getCount() - 1);
                 }
                 history.setCustomer(customers.get(numberCustomer - 1));
                 Calendar c = new GregorianCalendar();
-                history.setOverdueDate(c.getTime());
+                history.setPurchaseDate(c.getTime());
                 LocalDate localdate = LocalDate.now();
                 localdate = localdate.plusWeeks(2);
                 history.setLocalReturnedDate(localdate);
@@ -218,6 +217,9 @@ public class App {
                 break;
             }
         }
+        keeper.saveProducts(products);
+        histories.add(history);
+        keeper.saveHistories(histories);
     }
     
     private Set<Integer> printListProducts() {
@@ -226,16 +228,16 @@ public class App {
         Set<Integer> setNumbersProducts = new HashSet<>();
         for (int i = 0; i < products.size(); i++) {
             if (products.get(i) != null && products.get(i).getCount() > 0) {
-                System.out.printf("%d. Продукт - %s. В наличии экземпляров: %d%n",i+1,products.get(i).getProductname(),products.get(i).getCount());
+                System.out.printf("%d. %s. В наличии экземпляров: %d%n",i+1,products.get(i).getProductname(),products.get(i).getCount());
                 setNumbersProducts.add(i+1);
             }else if(products.get(i) != null){
-                System.out.printf("%d. Продукта %s. нет в наличии.",i+1,products.get(i).getProductname());
-                System.out.println("Предполагаемая дата просрочки товара: "+histories.get(i).getLocalReturnedDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
+                System.out.printf("%d. Продукта %s нет в наличии.",i+1,products.get(i).getProductname());
+                System.out.println("Предполагаемая дата возврата книги: "+histories.get(i).getLocalReturnedDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
             }
         }
         return setNumbersProducts;
     }
-    
+
     private int getNumber() {
         do{
             try{
