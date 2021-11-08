@@ -6,16 +6,31 @@
 package entity;
 
 import java.io.Serializable;
+import javax.annotation.Generated;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
 /**
  *
  * @author Влад
  */
+@Entity
 public class Product implements Serializable{
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private String productname;
     private double price;
+    @ElementCollection(fetch = FetchType.LAZY)
     private int quantity;
     private int count;
+
+    public Product() {
+    }
 
     public String getProductname() {
         return productname;
@@ -49,6 +64,8 @@ public class Product implements Serializable{
         this.count = count;
     }
 
+    
+    
     @Override
     public String toString() {
         return "Product{"
@@ -57,5 +74,13 @@ public class Product implements Serializable{
                 + ", quantity=" + quantity
                 + ", count=" + count
                 + '}';
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }
