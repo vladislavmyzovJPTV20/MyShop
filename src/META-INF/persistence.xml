@@ -3,6 +3,7 @@
   <persistence-unit name="MyShopPU" transaction-type="RESOURCE_LOCAL">
     <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
     <class>entity.Product</class>
+    <class>entity.Category</class>
     <properties>
       <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/myshop?zeroDateTimeBehavior=convertToNull&amp;characterEncoding=utf8&amp;useUnicode=true"/>
       <property name="javax.persistence.jdbc.user" value="myshop"/>

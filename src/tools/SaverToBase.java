@@ -5,10 +5,12 @@
  */
 package tools;
 
+import entity.Category;
 import entity.Customer;
 import entity.History;
 import entity.Product;
 import interfaces.Keeping;
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -20,12 +22,13 @@ import javax.persistence.Persistence;
  * @author Влад
  */
 public class SaverToBase implements Keeping{
+    
+    EntityManagerFactory emf = Persistence.createEntityManagerFactory("MyShopPU");
+    EntityManager em = emf.createEntityManager();
+    EntityTransaction tx = em.getTransaction();
 
     @Override
     public void saveProducts(List<Product> products) {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("MyShopPU");
-        EntityManager em = emf.createEntityManager();
-        EntityTransaction tx = em.getTransaction();
         tx.begin();
             for (int i = 0; i < products.size(); i++) {
                 if(products.get(i).getId() == null) {
@@ -37,7 +40,37 @@ public class SaverToBase implements Keeping{
 
     @Override
     public List<Product> loadProducts() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        List<Product> products = null;
+        try {
+            products = em.createQuery("SELECT product FROM Product product")
+                    .getResultList();
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
+        return products;
+    }
+    
+    @Override
+    public void saveCategories(List<Category> categories) {
+        tx.begin();
+            for (int i = 0; i < categories.size(); i++) {
+                if(categories.get(i).getId() == null) {
+                    em.persist(categories.get(i));
+                }
+            }
+        tx.commit();
+    }
+
+    @Override
+    public List<Category> loadCategories() {
+        List<Category> categories = null;
+        try {
+            categories = em.createQuery("SELECT category FROM Category category")
+                    .getResultList();
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
+        return categories;
     }
 
     @Override
@@ -59,5 +92,4 @@ public class SaverToBase implements Keeping{
     public List<History> loadHistory() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
 }

@@ -5,6 +5,7 @@
  */
 package tools;
 
+import entity.Category;
 import entity.Customer;
 import entity.History;
 import entity.Product;
@@ -135,6 +136,43 @@ public class SaverToFile implements Keeping{
         }
         
         return histories;
+    }
+
+    @Override
+    public void saveCategories(List<Category> categories) {
+        FileOutputStream fos = null;
+        ObjectOutputStream oos = null;
+        try {
+            fos = new FileOutputStream("categories");
+            oos = new ObjectOutputStream(fos);
+            oos.writeObject(categories);
+            oos.flush();
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(SaverToFile.class.getName()).log(Level.INFO, "Нет файла categories", ex);
+        } catch (IOException ex) {
+            Logger.getLogger(SaverToFile.class.getName()).log(Level.SEVERE, "Ошибка ввода", ex);
+        }
+    }
+
+    @Override
+    public List<Category> loadCategories() {
+        List<Category> categories = new ArrayList<>();
+        
+        FileInputStream fis = null;
+        ObjectInputStream ois = null;
+        try {
+            fis = new FileInputStream("categories");
+            ois = new ObjectInputStream(fis);
+            categories = (List<Category>) ois.readObject();
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(SaverToFile.class.getName()).log(Level.INFO, "Файл categories еще на создан", ex);
+        } catch (IOException ex) {
+            Logger.getLogger(SaverToFile.class.getName()).log(Level.SEVERE, "Oшибка считывания файла categories", ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(SaverToFile.class.getName()).log(Level.INFO, "Класса Category не существует", ex);
+        }
+        
+        return categories;
     }
     
 }

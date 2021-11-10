@@ -17,7 +17,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import entity.Category;
 import java.util.Set;
+import tools.SaverToBase;
 import tools.SaverToFile;
 
 /**
@@ -29,12 +31,15 @@ public class App {
     private List<Product> products = new ArrayList<>();
     private List<Customer> customers = new ArrayList<>();
     private List<History> histories = new ArrayList<>();
-    private Keeping keeper = new SaverToFile();
+    private List<Category> categories = new ArrayList<>();
+    //private Keeping keeper = new SaverToFile();
+    private Keeping keeper = new SaverToBase();
 
     public App() {
         products = keeper.loadProducts();
-        customers = keeper.loadCustomers();
-        histories = keeper.loadHistory();
+        categories = keeper.loadCategories();
+        //customers = keeper.loadCustomers();
+        //histories = keeper.loadHistory();
     }
     
     
@@ -51,6 +56,8 @@ public class App {
             System.out.println("5: Купить продукт");
             System.out.println("6: Список купленных продуктов");
             System.out.println("7: Возврат просроченного продукта");
+            System.out.println("8: Добавить категорию товара");
+            System.out.println("9: Список категорий товаров");
 
             int task = scanner.nextInt();
             scanner.nextLine();
@@ -87,6 +94,14 @@ public class App {
                 case 7:
                     System.out.println("---- Возврат просроченного продукта -----");
                     returnProduct();
+                    break;
+                case 8:
+                    System.out.println("---- Добавить категорию товара -----");
+                    addCategory();
+                    break;
+                case 9:
+                    System.out.println("---- Список категорий товаров -----");
+                    printListCategories();
                     break;
                 default:
                     System.out.println("Введите номер из списка!");
@@ -149,14 +164,33 @@ public class App {
 
     private void addProduct() {
         Product product = new Product();
+        Set<Integer> setNumbersCategories = printListCategories();
+        if(setNumbersCategories.isEmpty()){
+            System.out.println("Введите категорию.");
+            return;
+        }
+        System.out.print("Если в списке есть категории товаров нажмите 1: ");
+        if(getNumber() != 1){
+            System.out.println("Введите категорию товара.");
+            return;
+        }
+        System.out.println();
+        System.out.print("Введите количество категорий: ");
+        int countCategories = getNumber();
+        List<Category> categoriesProduct = new ArrayList<>();
+        for (int i = 0; i < countCategories; i++) {
+            System.out.println("Введите номер категории товара "+(i+1)+" из списка: ");
+            int numberCategory = insertNumber(setNumbersCategories);
+            categoriesProduct.add(categories.get(numberCategory - 1));
+        }
+        product.setCategory(categoriesProduct);
         System.out.print("Введите название продукта: ");
         product.setProductname(scanner.nextLine());
         System.out.print("Введите стоимость продукта: ");
         product.setPrice(getNumber());
-        System.out.print("Введите количество экзамепляров продукта: ");
+        System.out.print("Введите количество экземпляров продукта: ");
         product.setQuantity(getNumber());
         product.setCount(product.getQuantity());
-        
         products.add(product);
         keeper.saveProducts(products);
     }
@@ -227,12 +261,25 @@ public class App {
         products = keeper.loadProducts();
         Set<Integer> setNumbersProducts = new HashSet<>();
         for (int i = 0; i < products.size(); i++) {
-            if (products.get(i) != null && products.get(i).getCount() > 0) {
-                System.out.printf("%d. %s. В наличии экземпляров: %d%n",i+1,products.get(i).getProductname(),products.get(i).getCount());
+            StringBuilder cbCategories = new StringBuilder();
+            for (int j = 0; j < products.get(i).getCategory().size(); j++) {
+                cbCategories.append(products.get(i).getCategory().get(j).getCategoryName())
+                        .append(". ");
+            }
+            if(products.get(i) != null && products.get(i).getCount() > 0){
+                System.out.printf("%d. %s. %s В наличии экземпряров: %d%n"
+                        ,i+1
+                        ,products.get(i).getProductname()
+                        ,cbCategories.toString()
+                        ,products.get(i).getCount()
+                );
                 setNumbersProducts.add(i+1);
             }else if(products.get(i) != null){
-                System.out.printf("%d. Продукта %s нет в наличии.",i+1,products.get(i).getProductname());
-                System.out.println("Предполагаемая дата возврата книги: "+histories.get(i).getLocalReturnedDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
+                System.out.printf("%d. %s. %s Нет в наличии.%n"
+                        ,i+1
+                        ,products.get(i).getProductname()
+                        ,cbCategories.toString()
+                );
             }
         }
         return setNumbersProducts;
@@ -272,5 +319,30 @@ public class App {
             }
         }
         return setNumbersCustomers;
+    }
+
+    private void addCategory() {
+        System.out.println("---- Добавить категорию товара ----");
+        Category category = new Category();
+        System.out.print("Введите название категории товара: ");
+        category.setCategoryName(scanner.nextLine());
+        categories.add(category);
+        keeper.saveCategories(categories);
+        System.out.println("-----------------------");
+    }
+
+    private Set<Integer> printListCategories() {
+        Set<Integer> setNumbersCategories = new HashSet<>();
+        System.out.println("Список категорий товаров: ");
+        for (int i = 0; i < categories.size(); i++) {
+            if(categories.get(i) != null){
+                System.out.printf("%d. %s%n"
+                        ,i+1
+                        ,categories.get(i).toString()
+                );
+                setNumbersCategories.add(i+1);
+            }
+        }
+        return setNumbersCategories;
     }
 }

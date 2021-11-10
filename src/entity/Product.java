@@ -6,6 +6,8 @@
 package entity;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
 import javax.annotation.Generated;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -13,6 +15,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
 
 /**
  *
@@ -25,7 +28,8 @@ public class Product implements Serializable{
     private Long id;
     private String productname;
     private double price;
-    @ElementCollection(fetch = FetchType.LAZY)
+    @OneToOne
+    private List<Category> category;
     private int quantity;
     private int count;
 
@@ -64,23 +68,25 @@ public class Product implements Serializable{
         this.count = count;
     }
 
-    
-    
-    @Override
-    public String toString() {
-        return "Product{"
-                + "productname=" + productname
-                + ", price=" + price
-                + ", quantity=" + quantity
-                + ", count=" + count
-                + '}';
-    }
-
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public List<Category> getCategory() {
+        return category;
+    }
+
+    public void setCategory(List<Category> category) {
+        this.category = category;
+    }
+
+    @Override
+    public String toString() {
+        return "Продукт. " + "Название продукта: " + productname + ". Цена: " + price + ". Категория: " + Arrays.toString(category.toArray())
+                + ". Количество экземпляров: " + quantity + ". Число товара: " + count + '}';
     }
 }
