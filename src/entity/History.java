@@ -6,19 +6,35 @@
 package entity;
 
 import java.io.Serializable;
-import java.time.LocalDate;
 import java.util.Date;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.OneToOne;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 /**
  *
  * @author Влад
  */
+@Entity
 public class History implements Serializable{
+    @Id
+    @GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY)
+    private Long id;
+    @OneToOne(cascade = CascadeType.PERSIST, orphanRemoval = true)
     private Customer customer;
+    @OneToOne(cascade = CascadeType.PERSIST, orphanRemoval = true)
     private Product product;
+    @Temporal(TemporalType.TIMESTAMP)
     private Date purchaseDate;
+    @Temporal(TemporalType.TIMESTAMP)
     private Date overdueDate;
-    private LocalDate LocalReturnedDate;
+
+    public History() {
+    }
 
     public Customer getCustomer() {
         return customer;
@@ -52,16 +68,21 @@ public class History implements Serializable{
         this.overdueDate = overdueDate;
     }
 
-    public LocalDate getLocalReturnedDate() {
-        return LocalReturnedDate;
+    public Long getId() {
+        return id;
     }
 
-    public void setLocalReturnedDate(LocalDate LocalReturnedDate) {
-        this.LocalReturnedDate = LocalReturnedDate;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     @Override
     public String toString() {
-        return "History{" + "customer=" + customer + ", product=" + product + ", purchaseDate=" + purchaseDate + ", overdueDate=" + overdueDate + ", LocalReturnedDate=" + LocalReturnedDate + '}';
+        return "История. " + "Имя покупателя: " + customer
+                + ". Продукт: " + product
+                + ". Дата покупки: " + purchaseDate
+                + ". Дата возврата просроченного продукта: " + overdueDate + '}';
     }
+    
+    
 }

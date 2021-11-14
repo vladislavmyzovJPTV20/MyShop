@@ -75,21 +75,47 @@ public class SaverToBase implements Keeping{
 
     @Override
     public void saveCustomers(List<Customer> customers) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        tx.begin();
+            for (int i = 0; i < customers.size(); i++) {
+                if(customers.get(i).getId() == null) {
+                    em.persist(customers.get(i));
+                }
+            }
+        tx.commit();
     }
 
     @Override
     public List<Customer> loadCustomers() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        List<Customer> customers = null;
+        try {
+            customers = em.createQuery("SELECT customer FROM Customer customer")
+                    .getResultList();
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
+        return customers;
     }
 
     @Override
     public void saveHistories(List<History> histories) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        tx.begin();
+            for (int i = 0; i < histories.size(); i++) {
+                if(histories.get(i).getId() == null) {
+                    em.persist(histories.get(i));
+                }
+            }
+        tx.commit();
     }
 
     @Override
     public List<History> loadHistory() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        List<History> histories = null;
+        try {
+            histories = em.createQuery("SELECT history FROM History history")
+                    .getResultList();
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
+        return histories;
     }
 }

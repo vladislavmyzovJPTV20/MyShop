@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import entity.Category;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.Set;
 import tools.SaverToBase;
 import tools.SaverToFile;
@@ -58,6 +60,8 @@ public class App {
             System.out.println("7: Возврат просроченного продукта");
             System.out.println("8: Добавить категорию товара");
             System.out.println("9: Список категорий товаров");
+            System.out.println("10: Выборка продуктов по категории");
+            System.out.println("11: Выборка продуктов по какому-то слову");
 
             int task = scanner.nextInt();
             scanner.nextLine();
@@ -103,6 +107,14 @@ public class App {
                     System.out.println("---- Список категорий товаров -----");
                     printListCategories();
                     break;
+                case 10:
+                    System.out.println("---- Выборка продуктов по категории -----");
+                    selectionOfProductsByCategory();
+                    break;
+                case 11:
+                    System.out.println("---- Выборка продуктов по какому-то слову -----");
+                    selectionOfProductsByWord();
+                    break;
                 default:
                     System.out.println("Введите номер из списка!");
             }
@@ -147,11 +159,12 @@ public class App {
                     && histories.get(i).getProduct().getCount()
                         <histories.get(i).getProduct().getQuantity()
                     ){
-                System.out.printf("%d. Продукт %s купил %s %s.",
+                System.out.printf("%d. Продукт %s купил %s %s. Срок годности товара: %s",
                         i+1,
                         histories.get(i).getProduct().getProductname(),
                         histories.get(i).getCustomer().getFirstname(),
-                        histories.get(i).getCustomer().getLastname()
+                        histories.get(i).getCustomer().getLastname(),
+                        getOverdueDate(products.get(i))
                 );
                 setNumberGivenProducts.add(i+1);
             }
@@ -166,7 +179,7 @@ public class App {
         Product product = new Product();
         Set<Integer> setNumbersCategories = printListCategories();
         if(setNumbersCategories.isEmpty()){
-            System.out.println("Введите категорию.");
+            System.out.println("Добавьте категорию!");
             return;
         }
         System.out.print("Если в списке есть категории товаров нажмите 1: ");
@@ -231,9 +244,11 @@ public class App {
                 
                 System.out.print("Введите номер продукта: ");
                 int numberProduct = insertNumber(setNumbersProducts);
-
                 System.out.println("Список покупателей: ");
                 Set<Integer> setNumbersCustomers = printListCustomers();
+                if(setNumbersCustomers.isEmpty()) {
+                    return;
+                }
                 System.out.print("Введите номер покупателя: ");
                 int numberCustomer = insertNumber(setNumbersCustomers);
                 history.setProduct(products.get(numberProduct - 1));
@@ -243,9 +258,6 @@ public class App {
                 history.setCustomer(customers.get(numberCustomer - 1));
                 Calendar c = new GregorianCalendar();
                 history.setPurchaseDate(c.getTime());
-                LocalDate localdate = LocalDate.now();
-                localdate = localdate.plusWeeks(2);
-                history.setLocalReturnedDate(localdate);
             }else{
                 System.out.print("пуст");
                 break;
@@ -284,6 +296,12 @@ public class App {
         }
         return setNumbersProducts;
     }
+    
+    public LocalDate convertToLocalDateViaInstant(Date dateToConvert) {
+        return dateToConvert.toInstant()
+            .atZone(ZoneId.systemDefault())
+            .toLocalDate();
+    } 
 
     private int getNumber() {
         do{
@@ -306,6 +324,18 @@ public class App {
         }while(true);
     }
     
+    private String getOverdueDate(Product product){
+        
+        for (int i = 0; i < histories.size(); i++) {
+            if(product.getProductname().equals(histories.get(i).getProduct().getProductname())){
+                LocalDate localGivenDate = histories.get(i).getPurchaseDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                localGivenDate = localGivenDate.plusDays(14);
+                return localGivenDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+            }
+        }
+        return "";
+    }
+    
     private Set<Integer> printListCustomers() {
         Set<Integer> setNumbersCustomers = new HashSet<>();
         System.out.println("Список покупателей: ");
@@ -317,6 +347,9 @@ public class App {
                 );
                 setNumbersCustomers.add(i+1);
             }
+        }
+        if(setNumbersCustomers.isEmpty()) {
+            System.out.println("Добавьте покупателей!");
         }
         return setNumbersCustomers;
     }
@@ -344,5 +377,47 @@ public class App {
             }
         }
         return setNumbersCategories;
+    }
+
+    private void selectionOfProductsByCategory() {
+        System.out.println("----- Выборка продуктов по категории -----");
+        Set<Integer> setNumbersCategories = printListCategories();
+        if(setNumbersCategories.isEmpty()){
+            System.out.println("Список категорий товаров пуст. Добавьте категорию!");
+            return;
+        }
+        System.out.println("Выберите номер категории товара: ");
+        Category category = categories.get(insertNumber(setNumbersCategories)-1);
+        for (int i = 0; i < products.size(); i++) {
+            List<Category>categoriesProduct = products.get(i).getCategory();
+            for (int j = 0; j < categoriesProduct.size(); j++) {
+                Category categoryProduct = categoriesProduct.get(j);
+                if(category.equals(categoryProduct)){
+                    System.out.printf("%d. %s.%n"
+                            ,i+1
+                            ,products.get(i).getProductname()
+                    );
+                }
+                
+            }
+            
+        }
+        System.out.println("----------------------------");
+    }
+
+    private void selectionOfProductsByWord() {
+        System.out.println("Введите часть названия продукта: ");
+        String a = scanner.nextLine();
+        int n = 0;
+        
+        for (int i = 0; i < products.size(); i++) {
+            if(products.get(i).getProductname().contains(a)) {
+                System.out.printf("Данные символы содержатся в названии продукта/тов: %s %n",products.get(i).getProductname());
+                n++;
+            }
+        }
+        if(n == 0) {
+            System.out.println("Продуктов, содержащих данные символы - нет!");
+        }
     }
 }

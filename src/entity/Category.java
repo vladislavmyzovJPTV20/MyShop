@@ -20,6 +20,9 @@ public class Category implements Serializable{
     private Long id;
     private String CategoryName;
 
+    public Category() {
+    }
+
     public Long getId() {
         return id;
     }
