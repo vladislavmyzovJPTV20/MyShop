@@ -18,6 +18,10 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import entity.Category;
+import facade.CategoryFacade;
+import facade.CustomerFacade;
+import facade.HistoryFacade;
+import facade.ProductFacade;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.Set;
@@ -30,18 +34,12 @@ import tools.SaverToFile;
  */
 public class App {
     private Scanner scanner = new Scanner(System.in);
-    private List<Product> products = new ArrayList<>();
-    private List<Customer> customers = new ArrayList<>();
-    private List<History> histories = new ArrayList<>();
-    private List<Category> categories = new ArrayList<>();
-    //private Keeping keeper = new SaverToFile();
-    private Keeping keeper = new SaverToBase();
+    private CategoryFacade categoryFacade = new CategoryFacade(Category.class);
+    private ProductFacade productFacade = new ProductFacade(Product.class);
+    private CustomerFacade customerFacade = new CustomerFacade(Customer.class);
+    private HistoryFacade historyFacade = new HistoryFacade(History.class);
 
     public App() {
-        products = keeper.loadProducts();
-        categories = keeper.loadCategories();
-        //customers = keeper.loadCustomers();
-        //histories = keeper.loadHistory();
     }
     
     
@@ -151,38 +149,27 @@ public class App {
             return;
         }
         int historyNumber = insertNumber(numbersGivenProducts);
+        History history = historyFacade.find((long) historyNumber);
         Calendar c = new GregorianCalendar();
-        histories.get(historyNumber - 1).setOverdueDate(c.getTime());
-        for (int i = 0; i < products.size(); i++) {
-            if(products.get(i).getProductname().equals(histories.get(historyNumber-1).getProduct().getProductname())){
-                products.get(i).setCount(products.get(i).getCount()+1);
-            }
-        }
-        keeper.saveProducts(products);
-        keeper.saveHistories(histories);
+        history.setOverdueDate(c.getTime());
+        Product product = productFacade.find(history.getProduct().getId());
+        product.setCount(product.getCount()+1);
+        productFacade.edit(product);
+        historyFacade.edit(history);
     }
 
   private Set<Integer> printGivenProducts(){
-        System.out.println("Список купленных продуктов: ");
+        System.out.println("Список выданных продуктов: ");
         Set<Integer> setNumberGivenProducts = new HashSet<>();
-        for (int i = 0; i < histories.size(); i++) {
-            //если history не null и книга не возварщена и книг в наличии меньше
-            // чем записано в quantity -
-            // печатаем книгу
-            if(histories.get(i) != null 
-                    && histories.get(i).getOverdueDate() == null
-                    && histories.get(i).getProduct().getCount()
-                        <histories.get(i).getProduct().getQuantity()
-                    ){
-                System.out.printf("%d. Продукт %s купил %s %s. Срок годности товара: %s",
-                        i+1,
-                        histories.get(i).getProduct().getProductname(),
-                        histories.get(i).getCustomer().getFirstname(),
-                        histories.get(i).getCustomer().getLastname(),
-                        getOverdueDate(products.get(i))
-                );
-                setNumberGivenProducts.add(i+1);
-            }
+        List<History> historyesWithGivenBooks = historyFacade.findWithGivenBooks();
+        for (int i = 0; i < historyesWithGivenBooks.size(); i++) {
+            System.out.printf("%d. Продукт: %s купил %s %s%n",
+                    historyesWithGivenBooks.get(i).getId(),
+                    historyesWithGivenBooks.get(i).getProduct().getProductname(),
+                    historyesWithGivenBooks.get(i).getCustomer().getFirstname(),
+                    historyesWithGivenBooks.get(i).getCustomer().getLastname()
+            );
+            setNumberGivenProducts.add(historyesWithGivenBooks.get(i).getId().intValue());
         }
         if(setNumberGivenProducts.isEmpty()){
             System.out.println("Купленных продуктов нет");
@@ -190,16 +177,17 @@ public class App {
         return setNumberGivenProducts;
     }
 
-    private void addProduct() {
+    private void addProduct(){
+        System.out.println("---- Добавление продукта ----");
         Product product = new Product();
         Set<Integer> setNumbersCategories = printListCategories();
         if(setNumbersCategories.isEmpty()){
-            System.out.println("Добавьте категорию!");
+            System.out.println("Добавьте для начала категорию!");
             return;
         }
-        System.out.print("Если в списке есть категории товаров нажмите 1: ");
+        System.out.print("Если в списке есть категории продуктов нажмите 1: ");
         if(getNumber() != 1){
-            System.out.println("Введите категорию товара.");
+            System.out.println("Введите категорию.");
             return;
         }
         System.out.println();
@@ -207,20 +195,20 @@ public class App {
         int countCategories = getNumber();
         List<Category> categoriesProduct = new ArrayList<>();
         for (int i = 0; i < countCategories; i++) {
-            System.out.println("Введите номер категории товара "+(i+1)+" из списка: ");
+            System.out.println("Введите номер автора "+(i+1)+" из списка: ");
             int numberCategory = insertNumber(setNumbersCategories);
-            categoriesProduct.add(categories.get(numberCategory - 1));
+            categoriesProduct.add(categoryFacade.find((long)numberCategory));
         }
         product.setCategory(categoriesProduct);
         System.out.print("Введите название продукта: ");
         product.setProductname(scanner.nextLine());
-        System.out.print("Введите стоимость продукта: ");
+        System.out.print("Введите цену продукта: ");
         product.setPrice(getNumber());
-        System.out.print("Введите количество экземпляров продукта: ");
+        System.out.print("Введите количество экземпляров продуктов: ");
         product.setQuantity(getNumber());
         product.setCount(product.getQuantity());
-        products.add(product);
-        keeper.saveProducts(products);
+        productFacade.create(product);
+        System.out.println("-----------------------------");
     }
 
     private void addCustomer() {
@@ -231,61 +219,41 @@ public class App {
         customer.setLastname(scanner.nextLine());
         System.out.println("Введите количество денег покупателя: ");
         customer.setMoney(getNumber());
-        customers.add(customer);
-        keeper.saveCustomers(customers);
+        customerFacade.create(customer);
     }
 
     private void addHistory() {
         History history = new History();
-        Product product = new Product();
-        /**
-         * 1. Вывести пронумерованный список книг библиотеки
-         * 2. Попросить пользователя выбрать номер книги 
-         * 3. Вывести пронумерованный список читателей
-         * 4. Попросить пользователя выбрать номер читателя
-         * 5. Сгенерировать текущую дату выдачи 6. Инициировать объект History (задать состояние)
-         */
-        
-        System.out.println("-------- Купить продукт --------");
-        
-        System.out.println("Список продуктов: ");
+        System.out.println("------------ Купить продукт ----------");
         Set<Integer> setNumbersProducts = printListProducts();
         if(setNumbersProducts.isEmpty()){
             return;
         }
-        for (int i = 0; i < products.size(); i++) {
-            if (products.get(i) != null && products.get(i).getCount() > 0) {
-                System.out.println(i + 1 + ". " + products.get(i).toString());
-                
-                System.out.print("Введите номер продукта: ");
-                int numberProduct = insertNumber(setNumbersProducts);
-                System.out.println("Список покупателей: ");
-                Set<Integer> setNumbersCustomers = printListCustomers();
-                if(setNumbersCustomers.isEmpty()) {
-                    return;
-                }
-                System.out.print("Введите номер покупателя: ");
-                int numberCustomer = insertNumber(setNumbersCustomers);
-                history.setProduct(products.get(numberProduct - 1));
-                if(products.get(numberProduct - 1).getCount() > 0){
-                    products.get(numberProduct - 1).setCount(products.get(numberProduct - 1).getCount() - 1);
-                }
-                history.setCustomer(customers.get(numberCustomer - 1));
-                Calendar c = new GregorianCalendar();
-                history.setPurchaseDate(c.getTime());
-            }else{
-                System.out.print("пуст");
-                break;
-            }
+        System.out.print("Введите номер книги: ");
+        int numberProduct = insertNumber(setNumbersProducts);
+        Product product = productFacade.find((long)numberProduct);
+        Set<Integer> setNumbersCustomers = printListCustomers();
+        if(setNumbersCustomers.isEmpty()){
+            return;
         }
-        keeper.saveProducts(products);
-        histories.add(history);
-        keeper.saveHistories(histories);
+        System.out.print("Введите номер покупателя: ");
+        int numberCustomer = insertNumber(setNumbersCustomers);
+        Customer customer = customerFacade.find((long)numberCustomer);
+        history.setProduct(product);
+        if(product.getCount() > 0){
+            product.setCount(product.getCount()-1);
+        }
+        history.setCustomer(customer);
+        Calendar c = new GregorianCalendar();
+        history.setPurchaseDate(c.getTime());
+        productFacade.edit(product);
+        historyFacade.create(history);
+        System.out.println("========================");
     }
     
     private Set<Integer> printListProducts() {
         System.out.println("Список продуктов: ");
-        products = keeper.loadProducts();
+        List<Product> products = productFacade.findAll();
         Set<Integer> setNumbersProducts = new HashSet<>();
         for (int i = 0; i < products.size(); i++) {
             StringBuilder cbCategories = new StringBuilder();
@@ -295,7 +263,7 @@ public class App {
             }
             if(products.get(i) != null && products.get(i).getCount() > 0){
                 System.out.printf("%d. %s. %s В наличии экземпряров: %d%n"
-                        ,i+1
+                        ,products.get(i).getId()
                         ,products.get(i).getProductname()
                         ,cbCategories.toString()
                         ,products.get(i).getCount()
@@ -303,7 +271,7 @@ public class App {
                 setNumbersProducts.add(i+1);
             }else if(products.get(i) != null){
                 System.out.printf("%d. %s. %s Нет в наличии.%n"
-                        ,i+1
+                        ,products.get(i).getId()
                         ,products.get(i).getProductname()
                         ,cbCategories.toString()
                 );
@@ -340,7 +308,7 @@ public class App {
     }
     
     private String getOverdueDate(Product product){
-        
+        List<History> histories = historyFacade.findAll();
         for (int i = 0; i < histories.size(); i++) {
             if(product.getProductname().equals(histories.get(i).getProduct().getProductname())){
                 LocalDate localGivenDate = histories.get(i).getPurchaseDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
@@ -352,15 +320,18 @@ public class App {
     }
     
     private Set<Integer> printListCustomers() {
+        List<Customer> customers = customerFacade.findAll();
         Set<Integer> setNumbersCustomers = new HashSet<>();
         System.out.println("Список покупателей: ");
         for (int i = 0; i < customers.size(); i++) {
             if(customers.get(i) != null){
-                System.out.printf("%d. %s%n"
-                        ,i+1
-                        ,customers.get(i).toString()
+                System.out.printf("%d. %s %s. Деньги: %s%n"
+                        ,customers.get(i).getId()
+                        ,customers.get(i).getFirstname()
+                        ,customers.get(i).getLastname()
+                        ,customers.get(i).getMoney()
                 );
-                setNumbersCustomers.add(i+1);
+                setNumbersCustomers.add(customers.get(i).getId().intValue());
             }
         }
         if(setNumbersCustomers.isEmpty()) {
@@ -374,21 +345,21 @@ public class App {
         Category category = new Category();
         System.out.print("Введите название категории товара: ");
         category.setCategoryName(scanner.nextLine());
-        categories.add(category);
-        keeper.saveCategories(categories);
+        categoryFacade.create(category);
         System.out.println("-----------------------");
     }
 
     private Set<Integer> printListCategories() {
+        List<Category> categories = categoryFacade.findAll();
         Set<Integer> setNumbersCategories = new HashSet<>();
         System.out.println("Список категорий товаров: ");
         for (int i = 0; i < categories.size(); i++) {
             if(categories.get(i) != null){
-                System.out.printf("%d. %s%n"
-                        ,i+1
-                        ,categories.get(i).toString()
+                System.out.printf("%d. Название категории: %s%n"
+                        ,categories.get(i).getId()
+                        ,categories.get(i).getCategoryName()
                 );
-                setNumbersCategories.add(i+1);
+                setNumbersCategories.add(categories.get(i).getId().intValue());
             }
         }
         return setNumbersCategories;
@@ -396,20 +367,21 @@ public class App {
 
     private void selectionOfProductsByCategory() {
         System.out.println("----- Выборка продуктов по категории -----");
+        List<Product> products = productFacade.findAll();
         Set<Integer> setNumbersCategories = printListCategories();
         if(setNumbersCategories.isEmpty()){
             System.out.println("Список категорий товаров пуст. Добавьте категорию!");
             return;
         }
         System.out.println("Выберите номер категории товара: ");
-        Category category = categories.get(insertNumber(setNumbersCategories)-1);
+        Category category = categoryFacade.find((long)insertNumber(setNumbersCategories));
         for (int i = 0; i < products.size(); i++) {
             List<Category>categoriesProduct = products.get(i).getCategory();
             for (int j = 0; j < categoriesProduct.size(); j++) {
                 Category categoryProduct = categoriesProduct.get(j);
                 if(category.equals(categoryProduct)){
                     System.out.printf("%d. %s.%n"
-                            ,i+1
+                            ,products.get(i).getId()
                             ,products.get(i).getProductname()
                     );
                 }
@@ -421,6 +393,7 @@ public class App {
     }
 
     private void selectionOfProductsByWord() {
+        List<Product> products = productFacade.findAll();
         System.out.println("Введите часть названия продукта: ");
         String a = scanner.nextLine();
         int n = 0;
@@ -447,27 +420,28 @@ public class App {
         Set<Integer> setNum = new HashSet<>();
         setNum.add(1);
         setNum.add(2);
-        System.out.println("Название продукта: "+products.get(numProduct - 1).getProductname());
+        Product products = productFacade.find((long)numProduct);
+        System.out.println("Название продукта: "+products.getProductname());
         System.out.println("Хотите изменить нажмите 1, оставить без изменения 2");
         int change = insertNumber(setNum);
         if(1 == change){
             System.out.println("Введите новое название продукта: ");
-            products.get(numProduct - 1).setProductname(scanner.nextLine());
+            products.setProductname(scanner.nextLine());
         }
-        System.out.println("Стоимость обуви: "+products.get(numProduct - 1).getPrice());
+        System.out.println("Стоимость обуви: "+products.getPrice());
         System.out.println("Хотите изменить нажмите 1, оставить без изменения 2");
         change = insertNumber(setNum);
         if(1 == change){
             System.out.println("Введите новую цену продукта: ");
-            products.get(numProduct - 1).setPrice(scanner.nextDouble());
+            products.setPrice(scanner.nextDouble());
         }
-        System.out.println("Количество экземпляров продукта: "+products.get(numProduct - 1).getQuantity());
+        System.out.println("Количество экземпляров продукта: "+products.getQuantity());
         System.out.println("Хотите изменить нажмите 1, оставить без изменения 2");
         change = insertNumber(setNum);
         if(1 == change){
             System.out.println("Введите новое количество продуктов: ");
-            int oldCount = products.get(numProduct - 1).getCount();
-            int oldQuantity = products.get(numProduct - 1).getQuantity();
+            int oldCount = products.getCount();
+            int oldQuantity = products.getQuantity();
             int newQuantity;
             do {                
                 newQuantity = getNumber();
@@ -477,15 +451,15 @@ public class App {
                 System.out.println("Попробуй еще (>"+(oldQuantity - oldCount)+"): ");
             } while (true);
             int newCount = oldCount + (newQuantity - oldQuantity);
-            products.get(numProduct - 1).setQuantity(newQuantity);
-            products.get(numProduct - 1).setCount(newCount);
+            products.setQuantity(newQuantity);
+            products.setCount(newCount);
         }
-        keeper.saveProducts(products);
+        productFacade.edit(products);
     }
     
    private Set<Integer> printListAllProducts() {
         System.out.println("Список продуктов: ");
-        products = keeper.loadProducts();
+        List<Product> products = productFacade.findAll();
         Set<Integer> setNumbersProducts = new HashSet<>();
         for (int i = 0; i < products.size(); i++) {
             StringBuilder cbCategories = new StringBuilder();
@@ -495,7 +469,7 @@ public class App {
             }
             if(products.get(i) != null && products.get(i).getCount() >= 0){
                 System.out.printf("%d. Продукт: %s. Категория продукта: %s. В наличии экземпляров: %d%n"
-                        ,i+1
+                        ,products.get(i).getId()
                         ,products.get(i).getProductname()
                         ,cbCategories.toString()
                         ,products.get(i).getCount()
@@ -503,7 +477,7 @@ public class App {
                 setNumbersProducts.add(i+1);
             }else if(products.get(i) != null){
                 System.out.printf("%d. Продукт %s. Категория продукта: %s. Нет в наличии."
-                        ,i+1
+                        ,products.get(i).getId()
                         ,products.get(i).getProductname()
                         ,cbCategories.toString()
                 );
@@ -515,7 +489,7 @@ public class App {
     private void updateCustomer() {
         Set<Integer> setNumbersCustomers = printListCustomers();
         if(setNumbersCustomers.isEmpty()){
-            System.out.println("Нет покупателей в базе данных!");
+            System.out.println("Нет покупателей в базе");
             return;
         }
         System.out.println("Выберите номер покупателя: ");
@@ -523,28 +497,29 @@ public class App {
         Set<Integer> setNum = new HashSet<>();
         setNum.add(1);
         setNum.add(2);
-        System.out.println("Имя покупателя: "+customers.get(numСustomer - 1).getFirstname());
+        Customer customers = customerFacade.find((long)numСustomer);
+        System.out.println("Имя покупателя: "+customers.getFirstname());
         System.out.println("Хотите изменить нажмите 1, оставить без изменения 2");
         int change = insertNumber(setNum);
         if(1 == change){
             System.out.println("Введите новое имя покупателя: ");
-            customers.get(numСustomer - 1).setFirstname(scanner.nextLine());
+            customers.setFirstname(scanner.nextLine());
         }
-        System.out.println("фамилия покупателя: "+customers.get(numСustomer - 1).getLastname());
+        System.out.println("фамилия покупателя: "+customers.getLastname());
         System.out.println("Хотите изменить нажмите 1, оставить без изменения 2");
         change = insertNumber(setNum);
         if(1 == change){
             System.out.println("Введите новую фамилию покупателя: ");
-            customers.get(numСustomer - 1).setLastname(scanner.nextLine());
+            customers.setLastname(scanner.nextLine());
         }
-        System.out.println("Деньги покупателя: "+customers.get(numСustomer - 1).getMoney());
+        System.out.println("Количество денег покупателя: "+customers.getMoney());
         System.out.println("Хотите изменить нажмите 1, оставить без изменения 2");
         change = insertNumber(setNum);
         if(1 == change){
             System.out.println("Введите новое количество денег покупателя: ");
-            customers.get(numСustomer - 1).setMoney(scanner.nextDouble());
+            customers.setMoney(scanner.nextInt());
         }
-        keeper.saveCustomers(customers);
+        customerFacade.edit(customers);
     }
     
     private void updateCategory() {
@@ -555,16 +530,17 @@ public class App {
         }
         System.out.println("Выберите номер категории: ");
         int numCategory = insertNumber(setNumbersCategories);
+        Category categories = categoryFacade.find((long)numCategory);
         Set<Integer> setNum = new HashSet<>();
         setNum.add(1);
         setNum.add(2);
-        System.out.println("Название категории: "+categories.get(numCategory - 1).getCategoryName());
+        System.out.println("Название категории: "+categories.getCategoryName());
         System.out.println("Хотите изменить нажмите 1, оставить без изменения 2");
         int change = insertNumber(setNum);
         if(1 == change){
             System.out.println("Введите новое название категории: ");
-            categories.get(numCategory - 1).setCategoryName(scanner.nextLine());
+            categories.setCategoryName(scanner.nextLine());
         }
-        keeper.saveCategories(categories);
+        categoryFacade.edit(categories);
     }
 }
