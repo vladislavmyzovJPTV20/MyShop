@@ -34,14 +34,21 @@ import tools.SaverToFile;
  */
 public class App {
     private Scanner scanner = new Scanner(System.in);
-    private CategoryFacade categoryFacade = new CategoryFacade(Category.class);
-    private ProductFacade productFacade = new ProductFacade(Product.class);
-    private CustomerFacade customerFacade = new CustomerFacade(Customer.class);
-    private HistoryFacade historyFacade = new HistoryFacade(History.class);
+    private CategoryFacade categoryFacade;
+    private ProductFacade productFacade;
+    private CustomerFacade customerFacade;
+    private HistoryFacade historyFacade;
 
     public App() {
+        init();
     }
     
+    private void init() {
+        categoryFacade = new CategoryFacade(Category.class);
+        productFacade = new ProductFacade(Product.class);
+        customerFacade = new CustomerFacade(Customer.class);
+        historyFacade = new HistoryFacade(History.class);
+    }
     
      public void run() {
         String repeat = "r";
@@ -247,7 +254,7 @@ public class App {
         Calendar c = new GregorianCalendar();
         history.setPurchaseDate(c.getTime());
         productFacade.edit(product);
-        historyFacade.create(history);
+        historyFacade.edit(history);
         System.out.println("========================");
     }
     
@@ -377,17 +384,13 @@ public class App {
         Category category = categoryFacade.find((long)insertNumber(setNumbersCategories));
         for (int i = 0; i < products.size(); i++) {
             List<Category>categoriesProduct = products.get(i).getCategory();
-            for (int j = 0; j < categoriesProduct.size(); j++) {
-                Category categoryProduct = categoriesProduct.get(j);
-                if(category.equals(categoryProduct)){
-                    System.out.printf("%d. %s.%n"
-                            ,products.get(i).getId()
-                            ,products.get(i).getProductname()
-                    );
-                }
-                
+            if(categoriesProduct.contains(category)){
+                System.out.printf("%d. %s.%n"
+                        ,products.get(i).getId()
+                        ,products.get(i).getProductname()
+                );
             }
-            
+                
         }
         System.out.println("----------------------------");
     }
