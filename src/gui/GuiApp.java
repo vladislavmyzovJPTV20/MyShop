@@ -20,15 +20,13 @@ import javax.swing.JFrame;
  * @author Влад
  */
 public class GuiApp extends JFrame{
-    
-    private CaptionComponent captionComponent;
-    private InfoComponent infoComponent;
-    private EditComponent editComponent;
-    private EditComponent price;
-    private EditComponent quantityComponent;
-    private ListCategoriesComponent listCategoriesComponent;
-    private ButtonComponent buttonComponent;
-
+private CaptionComponent captionComponent;
+private InfoComponent infoComponent;
+private EditComponent editComponent;
+private EditComponent price;
+private EditComponent quantityComponent;
+private ButtonComponent buttonComponent;
+private ListCategoriesComponent listCategoriesComponent;
     public GuiApp() {
         initComponents();
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -39,22 +37,22 @@ public class GuiApp extends JFrame{
         this.setPreferredSize(new Dimension(600,400));
         this.setMinimumSize(this.getPreferredSize());
         this.setMaximumSize(this.getPreferredSize());
-        this.setLayout(new BoxLayout(this.getContentPane(), BoxLayout.X_AXIS));
+        this.setLayout(new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS));
         this.add(Box.createRigidArea(new Dimension(0,25)));
-        captionComponent = new CaptionComponent("Добавление продукта в магазин", this.getWidth(), 30);
+        captionComponent = new CaptionComponent("Добавление продукта в библиотеку", this.getWidth(), 30);
         this.add(captionComponent);
-        infoComponent = new InfoComponent("Информация о добавлении продукта в магазин", this.getWidth(), 27);
+        infoComponent = new InfoComponent("Информация о добавлении продукта в магазин", this.getWidth(),27);
         this.add(infoComponent);
         this.add(Box.createRigidArea(new Dimension(0,10)));
         editComponent = new EditComponent("Название продукта",this.getWidth(), 30, 300);
         this.add(editComponent);
-        price = new EditComponent("Цена продукта", this.getWidth(), 30, 50);
+        listCategoriesComponent = new ListCategoriesComponent("Категории", this.getWidth(), 120, 300);
+        this.add(listCategoriesComponent);
+        price = new EditComponent("Цена продукта", this.getWidth(), 30, 100);
         this.add(price);
         quantityComponent = new EditComponent("Колличество экземпляров", this.getWidth(), 30, 50);
         this.add(quantityComponent);
-        listCategoriesComponent = new ListCategoriesComponent("категории", this.getWidth(), 120, 300);
-        this.add(listCategoriesComponent);
-        buttonComponent = new ButtonComponent("Добавть книгу", this.getWidth(), 30, 350, 150);
+        buttonComponent = new ButtonComponent("Добавить продукт", this.getWidth(), 30, 350, 150);
         this.add(buttonComponent);
     }
     
@@ -65,4 +63,5 @@ public class GuiApp extends JFrame{
             }
         });
     }
+
 }
