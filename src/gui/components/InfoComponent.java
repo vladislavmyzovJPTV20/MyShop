@@ -32,5 +32,9 @@ public class InfoComponent extends JPanel{
        info.setFont(new Font("Tahoma",0,12));
        this.add(info);
     }
+
+    public JLabel getInfo() {
+        return info;
+    }
     
 }

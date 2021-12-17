@@ -67,5 +67,9 @@ public class ListCategoriesComponent extends JPanel{
         }
         return defaultListModel;
     }
+
+    public JList<Category> getList() {
+        return list;
+    }
     
 }
