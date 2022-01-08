@@ -48,10 +48,10 @@ public class GuiApp extends JFrame{
         managerTabbed.setMinimumSize(managerTabbed.getPreferredSize());
         managerTabbed.setMaximumSize(managerTabbed.getPreferredSize());
         this.add(managerTabbed);
-        TabAddProductComponent tabAddShoesComponent = new TabAddProductComponent(this.getWidth());
+        TabAddProductComponent tabAddProductComponent = new TabAddProductComponent(this.getWidth());
         managerTabbed.addTab("Добавить продукт", tabAddProductComponent);
 //        TabAddSizeComponent tabAddSizeComponent = new TabAddSizeComponent(this.getWidth());
-//        managerTabbed.addTab("Добавить размер обуви", tabAddSizeComponent);
+//        managerTabbed.addTab("Добавить категорию продукта", tabAddSizeComponent);
         TabAddCustomerComponent tabAddCustomerComponent = new TabAddCustomerComponent(this.getWidth());
         managerTabbed.addTab("Добавить покупателя", tabAddCustomerComponent);
     }
