@@ -12,11 +12,8 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 
-/**
- *
- * @author Влад
- */
 public class ButtonComponent extends JPanel{
     private JLabel title;
     private JButton button;
@@ -42,12 +39,10 @@ public class ButtonComponent extends JPanel{
        button.setMinimumSize(button.getPreferredSize());
        button.setMaximumSize(button.getPreferredSize());
        this.add(button);
-       
-       
     }
 
     public JButton getButton() {
         return button;
     }
-    
+
 }
