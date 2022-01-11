@@ -33,5 +33,5 @@ public class InfoComponent extends JPanel{
     public JLabel getInfo() {
         return info;
     }
-
+    
 }
