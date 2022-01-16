@@ -31,7 +31,7 @@ public class ListProductsCellRenderer extends DefaultListCellRenderer{
                       .append(". ");
                 }
                 label.setText(String.format("%d. %s. %s %s. %s."
-                        ,product.getId()
+                        ,index+1
                         ,product.getProductname()
                         ,sb.toString()
                         ,product.getPrice()

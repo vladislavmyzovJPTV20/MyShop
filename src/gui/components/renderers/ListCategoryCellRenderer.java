@@ -30,7 +30,7 @@ public class ListCategoryCellRenderer extends DefaultListCellRenderer{
                 JLabel label = (JLabel) component;
                 Category category = (Category) value;
                 label.setText(String.format("%d. %s"
-                    ,category.getId()
+                    ,index+1
                     ,category.getCategoryName()
                 ));
             if(!isSelected) {
