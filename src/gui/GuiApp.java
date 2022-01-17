@@ -120,16 +120,16 @@ public class GuiApp extends JFrame{
                         //Пользователь тот за кого себя выдает, устанавливаем разрешения.
                         String role = userRolesFacade.getTopRole(user);
                         GuiApp.role = role;
-                        infoTopComponent.getInfo().setText("Hello "+user.getCustomer().getFirstname());
                         guiApp.getContentPane().remove(guestPanel);
                         guiApp.getContentPane().remove(buttonChangePanelComponent);
                         JTabbedPane jTabbedPane = new JTabbedPane();
                         jTabbedPane.setPreferredSize(new Dimension(WIDTH_WINDOW,HEIGHT_WINDOW));
                         jTabbedPane.setMinimumSize(jTabbedPane.getPreferredSize());
                         jTabbedPane.setMaximumSize(jTabbedPane.getPreferredSize());
-                        if("CUSTOMER".equals(GuiApp.role)){
+                        if("ADMINISTRATOR".equals(GuiApp.role)){
                             customerComponent = new CustomerComponent(WIDTH_WINDOW,HEIGHT_WINDOW);
-                            jTabbedPane.addTab("Покупатель", customerComponent);
+                            jTabbedPane.addTab("Читатель", customerComponent);
+                            customerComponent.getInfoComponent().getInfo().setText("Hello "+user.getCustomer().getFirstname());
                         }
                         guiApp.getContentPane().add(jTabbedPane);
                         guiApp.repaint();
@@ -147,12 +147,12 @@ public class GuiApp extends JFrame{
 //            managerTabbed.setMinimumSize(managerTabbed.getPreferredSize());
 //            managerTabbed.setMaximumSize(managerTabbed.getPreferredSize());
 //            guiApp.add(managerTabbed);
-//            TabAddShoesComponent tabAddShoesComponent = new TabAddShoesComponent(guiApp.getWidth());
-//            managerTabbed.addTab("Добавить обувь", tabAddShoesComponent);
-//            TabAddSizeComponent tabAddSizeComponent = new TabAddSizeComponent(guiApp.getWidth());
-//            managerTabbed.addTab("Добавить размер обуви", tabAddSizeComponent);
-//            TabAddCustomerComponent tabAddCustomerComponent = new TabAddCustomerComponent(guiApp.getWidth());
-//            managerTabbed.addTab("Добавить покупателя", tabAddCustomerComponent);            
+//            TabAddBookComponent tabAddBookComponent = new TabAddBookComponent(guiApp.getWidth());
+//            managerTabbed.addTab("Добавить книгу", tabAddBookComponent);
+//            TabAddReaderComponent tabAddReaderComponent = new TabAddReaderComponent(guiApp.getWidth());
+//            managerTabbed.addTab("Добавить читателя", tabAddReaderComponent);
+//            TabAddAuthorComponent tabAddAuthorComponent = new TabAddAuthorComponent(guiApp.getWidth());
+//            managerTabbed.addTab("Добавить автора", tabAddAuthorComponent);              
             }
         });
     }

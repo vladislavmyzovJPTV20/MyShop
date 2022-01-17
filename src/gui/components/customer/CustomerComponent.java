@@ -15,6 +15,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 public class CustomerComponent extends JPanel{
+    private InfoComponent infoComponent;
 
     public CustomerComponent(int widthWindow, int heightPanel) {
         initComponents(widthWindow, heightPanel);
@@ -30,5 +31,10 @@ public class CustomerComponent extends JPanel{
         customerTabbed.addTab("Вернуть продукт", new ReturnProductComponent(WIDTH_WINDOW, HEIGHT_WINDOW));    
     }
 
+    public InfoComponent getInfoComponent() {
+        return infoComponent;
+    }
+
+    
 }
 
