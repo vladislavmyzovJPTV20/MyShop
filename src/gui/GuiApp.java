@@ -27,6 +27,8 @@ import gui.components.TabAddCustomerComponent;
 import gui.components.TabAddProductComponent;
 import gui.components.TabAddCategoryComponent;
 import gui.components.customer.CustomerComponent;
+import gui.components.director.DirectorComponent;
+import gui.components.manager.ManagerComponent;
 import java.awt.Color;
 import java.awt.Dialog;
 import java.awt.Dimension;
@@ -50,6 +52,8 @@ public class GuiApp extends JFrame{
     private JPanel guestPanel;
     private InfoComponent infoTopComponent;
     private CustomerComponent customerComponent;
+    private ManagerComponent managerComponent;
+    private DirectorComponent directorComponent;
     private ButtonComponent buttonChangePanelComponent;
     private ListProductsComponent listProductsComponent;
     private UserFacade userFacade = new UserFacade();
@@ -69,8 +73,10 @@ public class GuiApp extends JFrame{
         this.setPreferredSize(new Dimension(GuiApp.WIDTH_WINDOW,GuiApp.HEIGHT_WINDOW));
         this.setMinimumSize(this.getPreferredSize());
         this.setMaximumSize(this.getPreferredSize());
-        guestPanel = new GuestComponent(WIDTH_WINDOW,HEIGHT_WINDOW);
-        buttonChangePanelComponent = new ButtonComponent("Войти", 50, 470, 200);
+        infoTopComponent = new InfoComponent("", GuiApp.WIDTH_WINDOW, 27);
+        this.add(infoTopComponent);
+        guestPanel = new GuestComponent(330);
+        buttonChangePanelComponent = new ButtonComponent("Войти", GuiApp.WIDTH_WINDOW, 27, 470, 200);
         guestPanel.add(buttonChangePanelComponent);
         this.add(guestPanel);
         buttonChangePanelComponent.getButton().addActionListener(new ActionListener() {
@@ -78,16 +84,16 @@ public class GuiApp extends JFrame{
             @Override
             public void actionPerformed(ActionEvent e) {
               //Аутентификация
-                int widthWin = 350;
-                int heightWin = 260;
+                int widthLogin = 350;
+                int heightLogin = 260;
                 JDialog dialogLogin = new JDialog(guiApp,"Введите логин и пароль",Dialog.ModalityType.DOCUMENT_MODAL);
-                dialogLogin.setPreferredSize(new Dimension(widthWin,heightWin));
+                dialogLogin.setPreferredSize(new Dimension(widthLogin,heightLogin));
                 dialogLogin.setMaximumSize(dialogLogin.getPreferredSize());
                 dialogLogin.setMinimumSize(dialogLogin.getPreferredSize());
                 dialogLogin.getContentPane().setLayout(new BoxLayout(dialogLogin.getContentPane(), BoxLayout.Y_AXIS));
                 dialogLogin.setLocationRelativeTo(null);
-                CaptionComponent captionComponent = new CaptionComponent("Введите логин и пароль", widthWin, 27);
-                InfoComponent infoComponent = new InfoComponent("", widthWin, 27);
+                CaptionComponent captionComponent = new CaptionComponent("Введите логин и пароль", widthLogin, 27);
+                InfoComponent infoComponent = new InfoComponent("", widthLogin, 27);
                 EditComponent loginComponent = new EditComponent("Логин",200, 27, 120);
                 EditComponent passwordComponent = new EditComponent("Пароль", 200, 27, 120);
                 ButtonComponent enterComponent = new ButtonComponent("Войти", 27,180, 100);
@@ -120,16 +126,30 @@ public class GuiApp extends JFrame{
                         //Пользователь тот за кого себя выдает, устанавливаем разрешения.
                         String role = userRolesFacade.getTopRole(user);
                         GuiApp.role = role;
+                        infoTopComponent.getInfo().setText("Hello "+user.getCustomer().getFirstname());
+                        //Удаляем го
                         guiApp.getContentPane().remove(guestPanel);
                         guiApp.getContentPane().remove(buttonChangePanelComponent);
+                        
                         JTabbedPane jTabbedPane = new JTabbedPane();
                         jTabbedPane.setPreferredSize(new Dimension(WIDTH_WINDOW,HEIGHT_WINDOW));
                         jTabbedPane.setMinimumSize(jTabbedPane.getPreferredSize());
                         jTabbedPane.setMaximumSize(jTabbedPane.getPreferredSize());
                         if("ADMINISTRATOR".equals(GuiApp.role)){
-                            customerComponent = new CustomerComponent(WIDTH_WINDOW,HEIGHT_WINDOW);
+                            customerComponent = new CustomerComponent();
                             jTabbedPane.addTab("Читатель", customerComponent);
-                            customerComponent.getInfoComponent().getInfo().setText("Hello "+user.getCustomer().getFirstname());
+                            managerComponent = new ManagerComponent();
+                            jTabbedPane.addTab("Библиотекарь", managerComponent);
+                            directorComponent = new DirectorComponent();
+                            jTabbedPane.addTab("Директор", directorComponent);
+                        }else if("MANAGER".equals(GuiApp.role)){
+                            customerComponent = new CustomerComponent();
+                            jTabbedPane.addTab("Читатель", customerComponent);
+                            managerComponent = new ManagerComponent();
+                            jTabbedPane.addTab("Библиотекарь", managerComponent);                           
+                        }else if("READER".equals(GuiApp.role)){
+                            customerComponent = new CustomerComponent();
+                            jTabbedPane.addTab("Читатель", customerComponent);                            
                         }
                         guiApp.getContentPane().add(jTabbedPane);
                         guiApp.repaint();
@@ -156,7 +176,7 @@ public class GuiApp extends JFrame{
             }
         });
     }
-
+    
     public static void main(String[] args) {
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
@@ -171,7 +191,7 @@ public class GuiApp extends JFrame{
         Customer customer = new Customer();
         customer.setFirstname("Vladislav");
         customer.setLastname("Myzov");
-        customer.setMoney(50);
+        customer.setMoney(100);
         customerFacade.create(customer);
         
         User user = new User();

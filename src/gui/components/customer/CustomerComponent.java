@@ -5,6 +5,7 @@
  */
 package gui.components.customer;
 
+import gui.GuiApp;
 import static gui.GuiApp.HEIGHT_WINDOW;
 import static gui.GuiApp.WIDTH_WINDOW;
 import gui.components.*;
@@ -17,18 +18,18 @@ import javax.swing.JTabbedPane;
 public class CustomerComponent extends JPanel{
     private InfoComponent infoComponent;
 
-    public CustomerComponent(int widthWindow, int heightPanel) {
-        initComponents(widthWindow, heightPanel);
+    public CustomerComponent() {
+        initComponents();
     }
 
-    private void initComponents(int widthWindow, int heightPanel) {
+    private void initComponents() {
         JTabbedPane customerTabbed = new JTabbedPane();
-        customerTabbed.setPreferredSize(new Dimension(WIDTH_WINDOW,HEIGHT_WINDOW));
+        customerTabbed.setPreferredSize(new Dimension(GuiApp.WIDTH_WINDOW,GuiApp.HEIGHT_WINDOW));
         customerTabbed.setMinimumSize(customerTabbed.getPreferredSize());
         customerTabbed.setMaximumSize(customerTabbed.getPreferredSize());
         this.add(customerTabbed);
-        customerTabbed.addTab("Взять продукт", new TakeProductComponent(WIDTH_WINDOW, HEIGHT_WINDOW));
-        customerTabbed.addTab("Вернуть продукт", new ReturnProductComponent(WIDTH_WINDOW, HEIGHT_WINDOW));    
+        customerTabbed.addTab("Взять продукт", new TakeProductComponent());
+        customerTabbed.addTab("Вернуть продукт", new ReturnProductComponent());    
     }
 
     public InfoComponent getInfoComponent() {

@@ -3,10 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package gui.components;
+package gui.components.director;
 
 import entity.Customer;
 import facade.CustomerFacade;
+import gui.GuiApp;
+import gui.components.ButtonComponent;
+import gui.components.CaptionComponent;
+import gui.components.EditComponent;
+import gui.components.InfoComponent;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -27,25 +32,25 @@ public class TabAddCustomerComponent extends JPanel{
     private EditComponent moneyComponent;
     private ButtonComponent buttonComponent;
     
-    public TabAddCustomerComponent(int widthPanel, int heightPanel) {
-        initComponents(widthPanel, heightPanel);
+    public TabAddCustomerComponent() {
+        initComponents();
     }
 
-    private void initComponents(int widthPanel, int heightPanel) {
+    private void initComponents() {
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         this.add(Box.createRigidArea(new Dimension(0,25)));
-        captionComponent = new CaptionComponent("Добавление нового покупателя", widthPanel, 31);
+        captionComponent = new CaptionComponent("Добавление нового покупателя", GuiApp.WIDTH_WINDOW, 31);
         this.add(captionComponent); 
-        infoComponent = new InfoComponent("", widthPanel, 30);
+        infoComponent = new InfoComponent("", GuiApp.WIDTH_WINDOW, 30);
         this.add(infoComponent);
         this.add(Box.createRigidArea(new Dimension(0,10)));
-        nameComponent = new EditComponent("Имя:", widthPanel, 30, 300);
+        nameComponent = new EditComponent("Имя:", GuiApp.WIDTH_WINDOW, 30, 300);
         this.add(nameComponent);
-        lastNameComponent = new EditComponent("Фамилия:", widthPanel, 30, 300);
+        lastNameComponent = new EditComponent("Фамилия:", GuiApp.WIDTH_WINDOW, 30, 300);
         this.add(lastNameComponent);
-        moneyComponent = new EditComponent("Деньги:", widthPanel, 30, 200);
+        moneyComponent = new EditComponent("Деньги:", GuiApp.WIDTH_WINDOW, 30, 200);
         this.add(moneyComponent);
-        buttonComponent = new ButtonComponent("Добавить покупателя", widthPanel, 30, 350, 150);
+        buttonComponent = new ButtonComponent("Добавить покупателя", GuiApp.WIDTH_WINDOW, 30, 350, 150);
         this.add(buttonComponent);
         buttonComponent.getButton().addActionListener(ButtonAddReader());
     }

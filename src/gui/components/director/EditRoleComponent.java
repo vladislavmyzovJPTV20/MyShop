@@ -3,11 +3,17 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package gui.components;
+package gui.components.director;
 
 import entity.Category;
 import entity.Product;
 import facade.ProductFacade;
+import gui.GuiApp;
+import gui.components.ButtonComponent;
+import gui.components.CaptionComponent;
+import gui.components.EditComponent;
+import gui.components.InfoComponent;
+import gui.components.ListCategoriesComponent;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -21,7 +27,7 @@ import javax.swing.JPanel;
  *
  * @author Влад
  */
-public class TabAddProductComponent extends JPanel{
+public class EditRoleComponent extends JPanel{
     private CaptionComponent captionComponent;
     private InfoComponent infoComponent;
     private EditComponent productName;
@@ -30,27 +36,27 @@ public class TabAddProductComponent extends JPanel{
     private ButtonComponent buttonComponent;
     private ListCategoriesComponent listCategoriesComponent;
     
-    public TabAddProductComponent(int widthPanel, int heightPanel) {
-        initComponents(widthPanel, heightPanel);
+    public EditRoleComponent() {
+        initComponents();
     }
 
-    private void initComponents(int widthPanel, int heightPanel) {
+    private void initComponents() {
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         this.add(Box.createRigidArea(new Dimension(0,25)));
-        captionComponent = new CaptionComponent("Добавление продукта в магазин", widthPanel, 30);
+        captionComponent = new CaptionComponent("Добавление продукта в магазин", GuiApp.WIDTH_WINDOW, 30);
         this.add(captionComponent);
-        infoComponent = new InfoComponent("", widthPanel,27);
+        infoComponent = new InfoComponent("", GuiApp.WIDTH_WINDOW,27);
         this.add(infoComponent);
         this.add(Box.createRigidArea(new Dimension(0,10)));
-        productName = new EditComponent("Название продукта:", widthPanel, 30, 300);
+        productName = new EditComponent("Название продукта:", GuiApp.WIDTH_WINDOW, 30, 300);
         this.add(productName);
-        productPrice = new EditComponent("Стоимость продукта:", widthPanel, 30, 300);
+        productPrice = new EditComponent("Стоимость продукта:", GuiApp.WIDTH_WINDOW, 30, 300);
         this.add(productPrice);
-        listCategoriesComponent = new ListCategoriesComponent("Категории:", widthPanel, 120, 300);
+        listCategoriesComponent = new ListCategoriesComponent("Категории:", GuiApp.WIDTH_WINDOW, 120, 300);
         this.add(listCategoriesComponent);
-        quantityComponent = new EditComponent("Количество экземпляров:", widthPanel, 30, 50);
+        quantityComponent = new EditComponent("Количество экземпляров:", GuiApp.WIDTH_WINDOW, 30, 50);
         this.add(quantityComponent);
-        buttonComponent = new ButtonComponent("Добавить продукт", widthPanel, 30, 350, 150);
+        buttonComponent = new ButtonComponent("Добавить продукт", GuiApp.WIDTH_WINDOW, 30, 350, 150);
         this.add(buttonComponent);
         buttonComponent.getButton().addActionListener(new ActionListener() {
             @Override
