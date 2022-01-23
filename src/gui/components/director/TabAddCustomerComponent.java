@@ -44,11 +44,11 @@ public class TabAddCustomerComponent extends JPanel{
         infoComponent = new InfoComponent("", GuiApp.WIDTH_WINDOW, 30);
         this.add(infoComponent);
         this.add(Box.createRigidArea(new Dimension(0,10)));
-        nameComponent = new EditComponent("Имя:", GuiApp.WIDTH_WINDOW, 30, 300);
+        nameComponent = new EditComponent("Имя:", 240, 30, 300);
         this.add(nameComponent);
-        lastNameComponent = new EditComponent("Фамилия:", GuiApp.WIDTH_WINDOW, 30, 300);
+        lastNameComponent = new EditComponent("Фамилия:", 240, 30, 300);
         this.add(lastNameComponent);
-        moneyComponent = new EditComponent("Деньги:", GuiApp.WIDTH_WINDOW, 30, 200);
+        moneyComponent = new EditComponent("Деньги:", 240, 30, 200);
         this.add(moneyComponent);
         buttonComponent = new ButtonComponent("Добавить покупателя", GuiApp.WIDTH_WINDOW, 30, 350, 150);
         this.add(buttonComponent);

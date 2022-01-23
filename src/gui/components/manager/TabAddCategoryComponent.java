@@ -42,7 +42,7 @@ public class TabAddCategoryComponent extends JPanel{
         infoComponent = new InfoComponent("", GuiApp.WIDTH_WINDOW, 30);
         this.add(infoComponent);
         this.add(Box.createRigidArea(new Dimension(0,10)));
-        nameComponent = new EditComponent("Название категории:", GuiApp.WIDTH_WINDOW, 30, 300);
+        nameComponent = new EditComponent("Название категории:", 240, 30, 300);
         this.add(nameComponent);
         buttonComponent = new ButtonComponent("Добавить категорию", GuiApp.WIDTH_WINDOW, 30, 350, 150);
         this.add(buttonComponent);

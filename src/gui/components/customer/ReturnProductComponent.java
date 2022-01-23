@@ -41,13 +41,13 @@ public class ReturnProductComponent extends JPanel{
         infoComponent = new InfoComponent("", GuiApp.WIDTH_WINDOW,27);
         this.add(infoComponent);
         this.add(Box.createRigidArea(new Dimension(0,10)));
-        productName = new EditComponent("Название продукта:", GuiApp.WIDTH_WINDOW, 30, 300);
+        productName = new EditComponent("Название продукта:", 240, 30, 300);
         this.add(productName);
-        productPrice = new EditComponent("Стоимость продукта:", GuiApp.WIDTH_WINDOW, 30, 300);
+        productPrice = new EditComponent("Стоимость продукта:", 240, 30, 300);
         this.add(productPrice);
-        listCategoriesComponent = new ListCategoriesComponent("Категории:", GuiApp.WIDTH_WINDOW, 120, 300);
+        listCategoriesComponent = new ListCategoriesComponent("Категории:", 650, 120, 300);
         this.add(listCategoriesComponent);
-        quantityComponent = new EditComponent("Количество экземпляров:", GuiApp.WIDTH_WINDOW, 30, 50);
+        quantityComponent = new EditComponent("Количество экземпляров:", 240, 30, 50);
         this.add(quantityComponent);
         buttonComponent = new ButtonComponent("Добавить продукт", GuiApp.WIDTH_WINDOW, 30, 350, 150);
         this.add(buttonComponent);
