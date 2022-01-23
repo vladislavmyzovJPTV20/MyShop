@@ -11,6 +11,7 @@ import facade.ProductFacade;
 import gui.GuiApp;
 import gui.components.ButtonComponent;
 import gui.components.CaptionComponent;
+import gui.components.ComboBoxProductsComponent;
 import gui.components.EditComponent;
 import gui.components.InfoComponent;
 import gui.components.ListCategoriesComponent;
@@ -18,16 +19,20 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
 import java.util.List;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JComboBox;
 import javax.swing.JPanel;
+import javax.swing.ListModel;
 
 /**
  *
  * @author Влад
  */
 public class EditProductComponent extends JPanel{
+    public EditProductComponent editProductComponent = this;
     private CaptionComponent captionComponent;
     private InfoComponent infoComponent;
     private EditComponent productName;
@@ -35,15 +40,19 @@ public class EditProductComponent extends JPanel{
     private EditComponent quantityComponent;
     private ButtonComponent buttonComponent;
     private ListCategoriesComponent listCategoriesComponent;
+    private ProductFacade productFacade;
+    private Product editProduct;
+    private ComboBoxProductsComponent comboBoxProductsComponent;
     
     public EditProductComponent() {
+        productFacade = new ProductFacade(Product.class);
         initComponents();
     }
 
     private void initComponents() {
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         this.add(Box.createRigidArea(new Dimension(0,25)));
-        captionComponent = new CaptionComponent("Добавление продукта в магазин", GuiApp.WIDTH_WINDOW, 30);
+        captionComponent = new CaptionComponent("Изменение продукта в магазине", GuiApp.WIDTH_WINDOW, 30);
         this.add(captionComponent);
         infoComponent = new InfoComponent("", GuiApp.WIDTH_WINDOW,27);
         this.add(infoComponent);
@@ -56,25 +65,26 @@ public class EditProductComponent extends JPanel{
         this.add(listCategoriesComponent);
         quantityComponent = new EditComponent("Количество экземпляров:", GuiApp.WIDTH_WINDOW, 30, 50);
         this.add(quantityComponent);
-        buttonComponent = new ButtonComponent("Добавить продукт", GuiApp.WIDTH_WINDOW, 30, 350, 150);
+        buttonComponent = new ButtonComponent("Изменить продукт", GuiApp.WIDTH_WINDOW, 30, 350, 150);
         this.add(buttonComponent);
         buttonComponent.getButton().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Product product = new Product();
+                Product updateProduct = productFacade.find(editProduct.getId());
+                
                 if(productName.getEditor().getText().isEmpty()){
                     infoComponent.getInfo().setForeground(Color.red);
                     infoComponent.getInfo().setText("Введите название продукта");
                     return;
                 }
-                product.setProductname(productName.getEditor().getText());
+                updateProduct.setProductname(productName.getEditor().getText());
                 
                 if(productPrice.getEditor().getText().isEmpty()){
                     infoComponent.getInfo().setForeground(Color.red);
                     infoComponent.getInfo().setText("Введите цену продукта");
                     return;
                 }
-                product.setPrice(Integer.parseInt(productPrice.getEditor().getText()));
+                updateProduct.setPrice(Double.parseDouble(productPrice.getEditor().getText()));
                 
                 List<Category> categoriesProduct = listCategoriesComponent.getList().getSelectedValuesList();
                 if(categoriesProduct.isEmpty()){
@@ -82,10 +92,10 @@ public class EditProductComponent extends JPanel{
                     infoComponent.getInfo().setText("Выберите категорию продукта");
                     return;
                 }
-                product.setCategory(categoriesProduct);
+                updateProduct.setCategory(categoriesProduct);
                 try {
-                    product.setQuantity(Integer.parseInt(quantityComponent.getEditor().getText()));
-                    product.setCount(product.getQuantity());
+                    updateProduct.setQuantity(Integer.parseInt(quantityComponent.getEditor().getText()));
+                    updateProduct.setCount(updateProduct.getQuantity());
                 } catch (Exception ex) {
                     infoComponent.getInfo().setForeground(Color.red);
                     infoComponent.getInfo().setText("Введите количество продукта (цифрами)");
@@ -93,18 +103,40 @@ public class EditProductComponent extends JPanel{
                 }
                 ProductFacade productFacade = new ProductFacade(Product.class);
                 try {
-                    productFacade.create(product);
+                    productFacade.edit(updateProduct);
                     infoComponent.getInfo().setForeground(Color.BLUE);
-                    infoComponent.getInfo().setText("Продукт успешно добавлен");
-                    productName.getEditor().setText("");
-                    productPrice.getEditor().setText("");
-                    quantityComponent.getEditor().setText("");
-                    listCategoriesComponent.getList().clearSelection();
+                    infoComponent.getInfo().setText("Продукт успешно изменён");
+                    comboBoxProductsComponent.getComboBox().setModel(comboBoxProductsComponent.getComboBoxModel());
+                    comboBoxProductsComponent.getComboBox().setSelectedIndex(-1);
                 } catch (Exception ex) {
                     infoComponent.getInfo().setForeground(Color.RED);
-                    infoComponent.getInfo().setText("Продукт добавить не удалось");
+                    infoComponent.getInfo().setText("Продукт изменить не удалось");
                 }
             }
         });
-    }
+        comboBoxProductsComponent.getComboBox().addItemListener((ItemEvent e) -> {
+           JComboBox comboBox = (JComboBox) e.getSource();
+           if(comboBox.getSelectedIndex() == -1){
+                productName.getEditor().setText("");
+                productPrice.getEditor().setText("");
+                quantityComponent.getEditor().setText("");
+                listCategoriesComponent.getList().clearSelection();
+           }else{
+                editProduct = (Product) e.getItem();
+                productName.getEditor().setText(editProduct.getProductname());
+                productPrice.getEditor().setText(((Double)editProduct.getPrice()).toString());
+                quantityComponent.getEditor().setText(((Integer)editProduct.getQuantity()).toString());
+                listCategoriesComponent.getList().clearSelection();
+                ListModel<Category> listModel = listCategoriesComponent.getList().getModel();
+                for (int i=0;i<listModel.getSize();i++) {
+                    if(editProduct.getCategory().contains(listModel.getElementAt(i))){
+                        listCategoriesComponent.getList().getSelectionModel().addSelectionInterval(i, i);
+                    }
+                }
+           }
+        });
+}
+       
+    
+    
 }

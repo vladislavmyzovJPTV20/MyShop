@@ -6,14 +6,12 @@
 package gui;
 
 import entity.Customer;
+import entity.Customer;
 import entity.Role;
-import entity.Product;
-import entity.Category;
 import entity.User;
 import entity.UserRoles;
 import facade.CustomerFacade;
 import facade.RoleFacade;
-import facade.ProductFacade;
 import facade.UserFacade;
 import facade.UserRolesFacade;
 import gui.components.ButtonComponent;
@@ -21,15 +19,11 @@ import gui.components.CaptionComponent;
 import gui.components.EditComponent;
 import gui.components.GuestComponent;
 import gui.components.InfoComponent;
-import gui.components.ListProductsComponent;
 import gui.components.ListCategoriesComponent;
-import gui.components.TabAddCustomerComponent;
-import gui.components.TabAddProductComponent;
-import gui.components.TabAddCategoryComponent;
-import gui.components.customer.CustomerComponent;
+import gui.components.ListProductsComponent;
 import gui.components.director.DirectorComponent;
 import gui.components.manager.ManagerComponent;
-import java.awt.Color;
+import gui.components.customer.CustomerComponent;
 import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -39,36 +33,44 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import static javax.swing.JFrame.EXIT_ON_CLOSE;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
-
+/**
+ *
+ * @author Melnikov
+ */
 public class GuiApp extends JFrame{
     public static final int WIDTH_WINDOW = 700;
-    public static final int HEIGHT_WINDOW = 550;
+    public static final int HEIGHT_WINDOW = 500;
     public static User user;
     public static String role;
-    private JPanel guestPanel;
+    public GuiApp guiApp = this;
+    
+    private CaptionComponent captionComponent;
     private InfoComponent infoTopComponent;
     private CustomerComponent customerComponent;
     private ManagerComponent managerComponent;
     private DirectorComponent directorComponent;
+    private EditComponent quantityComponent;
+    private ButtonComponent buttonComponent;
     private ButtonComponent buttonChangePanelComponent;
+    private ListCategoriesComponent listCategoriesComponent;
     private ListProductsComponent listProductsComponent;
+    private JPanel guestPanel;
+    private CustomerFacade customerFacade = new CustomerFacade(Customer.class);
     private UserFacade userFacade = new UserFacade();
     private RoleFacade roleFacade = new RoleFacade();
     private UserRolesFacade userRolesFacade = new UserRolesFacade();
-    private CustomerFacade customerFacade = new CustomerFacade(Customer.class);
-    public GuiApp guiApp = this;
-
+    
     public GuiApp() {
         superAdmin();
+        setTitle("Библиотека группы JPTV20");
         initComponents();
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
     }
-
+    
     private void initComponents() {
         this.setPreferredSize(new Dimension(GuiApp.WIDTH_WINDOW,GuiApp.HEIGHT_WINDOW));
         this.setMinimumSize(this.getPreferredSize());
@@ -80,12 +82,11 @@ public class GuiApp extends JFrame{
         guestPanel.add(buttonChangePanelComponent);
         this.add(guestPanel);
         buttonChangePanelComponent.getButton().addActionListener(new ActionListener() {
-
+           //Аутентификация
             @Override
             public void actionPerformed(ActionEvent e) {
-              //Аутентификация
                 int widthLogin = 350;
-                int heightLogin = 260;
+                int heightLogin = 250;
                 JDialog dialogLogin = new JDialog(guiApp,"Введите логин и пароль",Dialog.ModalityType.DOCUMENT_MODAL);
                 dialogLogin.setPreferredSize(new Dimension(widthLogin,heightLogin));
                 dialogLogin.setMaximumSize(dialogLogin.getPreferredSize());
@@ -94,9 +95,9 @@ public class GuiApp extends JFrame{
                 dialogLogin.setLocationRelativeTo(null);
                 CaptionComponent captionComponent = new CaptionComponent("Введите логин и пароль", widthLogin, 27);
                 InfoComponent infoComponent = new InfoComponent("", widthLogin, 27);
-                EditComponent loginComponent = new EditComponent("Логин",200, 27, 120);
-                EditComponent passwordComponent = new EditComponent("Пароль", 200, 27, 120);
-                ButtonComponent enterComponent = new ButtonComponent("Войти", 27,180, 100);
+                EditComponent loginComponent = new EditComponent("Логин",80, 27, 200);
+                EditComponent passwordComponent = new EditComponent("Пароль", 80, 27, 200);
+                ButtonComponent enterComponent = new ButtonComponent("Войти",GuiApp.WIDTH_WINDOW, 27, 180, 100);
                 dialogLogin.getContentPane().add(Box.createRigidArea(new Dimension(0,10)));
                 dialogLogin.getContentPane().add(captionComponent);
                 dialogLogin.getContentPane().add(Box.createRigidArea(new Dimension(0,5)));
@@ -127,29 +128,29 @@ public class GuiApp extends JFrame{
                         String role = userRolesFacade.getTopRole(user);
                         GuiApp.role = role;
                         infoTopComponent.getInfo().setText("Hello "+user.getCustomer().getFirstname());
-                        //Удаляем го
+                        //Удаляем гостевую панель и кнопку войти
                         guiApp.getContentPane().remove(guestPanel);
                         guiApp.getContentPane().remove(buttonChangePanelComponent);
-                        
+                        //Создаем вкладки
                         JTabbedPane jTabbedPane = new JTabbedPane();
                         jTabbedPane.setPreferredSize(new Dimension(WIDTH_WINDOW,HEIGHT_WINDOW));
                         jTabbedPane.setMinimumSize(jTabbedPane.getPreferredSize());
                         jTabbedPane.setMaximumSize(jTabbedPane.getPreferredSize());
                         if("ADMINISTRATOR".equals(GuiApp.role)){
                             customerComponent = new CustomerComponent();
-                            jTabbedPane.addTab("Читатель", customerComponent);
+                            jTabbedPane.addTab("Покупатель", customerComponent);
                             managerComponent = new ManagerComponent();
-                            jTabbedPane.addTab("Библиотекарь", managerComponent);
+                            jTabbedPane.addTab("Менеджер", managerComponent);
                             directorComponent = new DirectorComponent();
                             jTabbedPane.addTab("Директор", directorComponent);
                         }else if("MANAGER".equals(GuiApp.role)){
                             customerComponent = new CustomerComponent();
-                            jTabbedPane.addTab("Читатель", customerComponent);
+                            jTabbedPane.addTab("Покупатель", customerComponent);
                             managerComponent = new ManagerComponent();
-                            jTabbedPane.addTab("Библиотекарь", managerComponent);                           
+                            jTabbedPane.addTab("Менеджер", managerComponent);
                         }else if("READER".equals(GuiApp.role)){
                             customerComponent = new CustomerComponent();
-                            jTabbedPane.addTab("Читатель", customerComponent);                            
+                            jTabbedPane.addTab("Покупатель", customerComponent);
                         }
                         guiApp.getContentPane().add(jTabbedPane);
                         guiApp.repaint();
@@ -161,20 +162,17 @@ public class GuiApp extends JFrame{
                 });
                 dialogLogin.pack();
                 dialogLogin.setVisible(true);
-//            guiApp.getContentPane().removeAll();
-//            JTabbedPane managerTabbed = new JTabbedPane();
-//            managerTabbed.setPreferredSize(new Dimension(GuiApp.WIDTH_WINDOW,GuiApp.HEIGHT_WINDOW));
-//            managerTabbed.setMinimumSize(managerTabbed.getPreferredSize());
-//            managerTabbed.setMaximumSize(managerTabbed.getPreferredSize());
-//            guiApp.add(managerTabbed);
-//            TabAddBookComponent tabAddBookComponent = new TabAddBookComponent(guiApp.getWidth());
-//            managerTabbed.addTab("Добавить книгу", tabAddBookComponent);
-//            TabAddReaderComponent tabAddReaderComponent = new TabAddReaderComponent(guiApp.getWidth());
-//            managerTabbed.addTab("Добавить читателя", tabAddReaderComponent);
-//            TabAddAuthorComponent tabAddAuthorComponent = new TabAddAuthorComponent(guiApp.getWidth());
-//            managerTabbed.addTab("Добавить автора", tabAddAuthorComponent);              
+//                guiApp.getContentPane().removeAll();
+//                JTabbedPane managerTabbed = new JTabbedPane();
+//                managerTabbed.setPreferredSize(new Dimension(WIDTH_WINDOW,HEIGHT_WINDOW));
+//                managerTabbed.setMinimumSize(managerTabbed.getPreferredSize());
+//                managerTabbed.setMaximumSize(managerTabbed.getPreferredSize());
+//                guiApp.add(managerTabbed);
+//                JPanel addBookPanel = new AddBookComponent(WIDTH_WINDOW,HEIGHT_WINDOW);
+//                managerTabbed.addTab("Добавить книгу", addBookPanel);
             }
         });
+        
     }
     
     public static void main(String[] args) {

@@ -10,9 +10,12 @@ import java.awt.Dimension;
 import javax.swing.Box;
 import javax.swing.JPanel;
 
+/**
+ *
+ * @author Melnikov
+ */
 public class GuestComponent extends JPanel{
     private ListProductsComponent listProductsComponent;
-    
     public GuestComponent() {
         initComponents(GuiApp.HEIGHT_WINDOW);
     }
@@ -25,10 +28,9 @@ public class GuestComponent extends JPanel{
        this.setPreferredSize(new Dimension(GuiApp.WIDTH_WINDOW,GuiApp.HEIGHT_WINDOW));
        this.setMinimumSize(this.getPreferredSize());
        this.setMaximumSize(this.getPreferredSize());
-       listProductsComponent = new ListProductsComponent(false, "Список продуктов магазина",0, heightList, GuiApp.WIDTH_WINDOW);
-       this.add(Box.createRigidArea(new Dimension(0,10)));
-       this.add(listProductsComponent);
-       this.add(Box.createRigidArea(new Dimension(0,10)));
+       listProductsComponent = new ListProductsComponent(false, "Список продуктов магазина", 0, heightList, GuiApp.WIDTH_WINDOW);
+        this.add(Box.createRigidArea(new Dimension(0,10)));
+        this.add(listProductsComponent);
     }
 
     public ListProductsComponent getListProductsComponent() {

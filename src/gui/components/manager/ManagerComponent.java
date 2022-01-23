@@ -5,28 +5,39 @@
  */
 package gui.components.manager;
 
-import gui.GuiApp;
 import gui.components.customer.*;
 import gui.components.*;
+import entity.Category;
+import entity.Product;
+import facade.ProductFacade;
+import gui.GuiApp;
 import static gui.GuiApp.HEIGHT_WINDOW;
 import static gui.GuiApp.WIDTH_WINDOW;
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.List;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
-
+/**
+ *
+ * @author Melnikov
+ */
 public class ManagerComponent extends JPanel{
     private CaptionComponent captionComponent;
     private InfoComponent infoComponent;
     private EditComponent nameBookComponent;
+    private ListCategoriesComponent listCategoriesComponent;
     private EditComponent publishedYearComponent;
     private EditComponent quantityComponent;
     private ButtonComponent buttonComponent;
-    private ListCategoriesComponent listCategoriesComponent;
-    
     public ManagerComponent() {
         initComponents();
-    }    
+    }
 
     private void initComponents() {
         JTabbedPane readerTabbed = new JTabbedPane();
@@ -37,11 +48,13 @@ public class ManagerComponent extends JPanel{
         readerTabbed.addTab("Добавить продукт", new TabAddProductComponent());
         readerTabbed.addTab("Редактировать продукт", new EditProductComponent());
         readerTabbed.addTab("Добавить категорию", new TabAddCategoryComponent());
-        readerTabbed.addTab("Редактировать категорию", new EditCategoryComponent());      
+        readerTabbed.addTab("Редактировать категорию", new EditCategoryComponent());
     }
 
     public InfoComponent getInfoComponent() {
         return infoComponent;
     }
+       
+    
     
 }

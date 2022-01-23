@@ -15,28 +15,27 @@ import javax.swing.UIManager;
 
 /**
  *
- * @author Влад
+ * @author Melnikov
  */
 public class ListCategoryCellRenderer extends DefaultListCellRenderer{
-
     private final Color background = new Color(0, 100, 255, 15);
     private final Color defaultBackground = (Color) UIManager.get("List.background");
-    
     @Override
-    public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-        
-        Component component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-            if(component instanceof JLabel) {
+    public Component getListCellRendererComponent(JList<?> list, Object value,int index,
+                                                    boolean isSelected, boolean cellHasFocus){
+        Component component = super.getListCellRendererComponent(list, value, index, 
+                isSelected, cellHasFocus);
+            if(component instanceof JLabel){
                 JLabel label = (JLabel) component;
                 Category category = (Category) value;
-                label.setText(String.format("%d. %s"
-                    ,index+1
-                    ,category.getCategoryName()
+                label.setText(String.format("%s."
+                        ,category.getCategoryName()
                 ));
-            if(!isSelected) {
-                label.setBackground(index % 2 == 0 ? background : defaultBackground);
+                if(!isSelected){
+                    label.setBackground(index % 2 == 0 ? background : defaultBackground);
+                }
             }
+            return component;                                            
         }
-            return component;
-    }  
+    
 }

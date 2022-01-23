@@ -14,25 +14,24 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+/**
+ *
+ * @author Melnikov
+ */
 public class ButtonComponent extends JPanel{
     private JLabel title;
     private JButton button;
-    
-    public ButtonComponent(String text, int heightPanel, int left, int widthEditor) {
-        initComponents(text,GuiApp.WIDTH_WINDOW, heightPanel,left,widthEditor);
-    }
-    
-    public ButtonComponent(String text, int widthPanel, int heightPanel, int left, int widthEditor) {
-        initComponents(text,widthPanel, heightPanel,left,widthEditor);
+   
+    public ButtonComponent(String text, int whidthPanel, int heightPanel, int left, int widthEditor) {
+        initComponents(text,whidthPanel, heightPanel,left,widthEditor);
     }
 
-    private void initComponents(String text, int widthPanel, int heightPanel,int left,int widthEditor) {
-       this.setPreferredSize(new Dimension(widthPanel,heightPanel));
+    private void initComponents(String text, int whidthPanel, int heightPanel,int left,int widthEditor) {
+       this.setPreferredSize(new Dimension(whidthPanel,heightPanel));
        this.setMinimumSize(this.getPreferredSize());
        this.setMaximumSize(this.getPreferredSize());
        this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-       this.add(Box.createRigidArea(new Dimension(left,0)));       
-       this.add(Box.createRigidArea(new Dimension(5,0)));
+       this.add(Box.createRigidArea(new Dimension(left,0)));
        button = new JButton(text);
        button.setPreferredSize(new Dimension(widthEditor,27));
        button.setMinimumSize(button.getPreferredSize());

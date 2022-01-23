@@ -14,6 +14,10 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.UIManager;
 
+/**
+ *
+ * @author Melnikov
+ */
 public class ListProductsCellRenderer extends DefaultListCellRenderer{
     private final Color background = new Color(0, 100, 255, 15);
     private final Color defaultBackground = (Color) UIManager.get("List.background");
@@ -25,17 +29,16 @@ public class ListProductsCellRenderer extends DefaultListCellRenderer{
             if(component instanceof JLabel){
                 JLabel label = (JLabel) component;
                 Product product = (Product) value;
+                if(product == null) return component;
                 StringBuilder sb = new StringBuilder();
                 for (Category category : product.getCategory()) {
                     sb.append(category.getCategoryName())
                       .append(". ");
                 }
-                label.setText(String.format("%d. %s. %s %s. %s."
-                        ,index+1
+                label.setText(String.format("%s. %s %d."
                         ,product.getProductname()
                         ,sb.toString()
-                        ,product.getPrice()
-                        ,product.getCount()
+                        ,product.getQuantity()
                 ));
                 if(!isSelected){
                     label.setBackground(index % 2 == 0 ? background : defaultBackground);
@@ -43,5 +46,5 @@ public class ListProductsCellRenderer extends DefaultListCellRenderer{
             }
             return component;                                            
         }
-
+    
 }
