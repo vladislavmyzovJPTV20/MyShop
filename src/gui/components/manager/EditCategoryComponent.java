@@ -6,21 +6,22 @@
 package gui.components.manager;
 
 import entity.Category;
-import entity.Product;
-import facade.ProductFacade;
+import facade.CategoryFacade;
 import gui.GuiApp;
 import gui.components.ButtonComponent;
 import gui.components.CaptionComponent;
+import gui.components.ComboBoxCategoriesComponent;
 import gui.components.EditComponent;
 import gui.components.InfoComponent;
-import gui.components.ListCategoriesComponent;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.List;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JComboBox;
 import javax.swing.JPanel;
 
 /**
@@ -30,81 +31,75 @@ import javax.swing.JPanel;
 public class EditCategoryComponent extends JPanel{
     private CaptionComponent captionComponent;
     private InfoComponent infoComponent;
-    private EditComponent productName;
-    private EditComponent productPrice;
-    private EditComponent quantityComponent;
+    private EditComponent nameComponent;
     private ButtonComponent buttonComponent;
-    private ListCategoriesComponent listCategoriesComponent;
+    
+    private CategoryFacade categoryFacade;
+    private Category editCategory;
+    private ComboBoxCategoriesComponent comboBoxCategoriesComponent;
     
     public EditCategoryComponent() {
+        categoryFacade = new CategoryFacade(Category.class);
         initComponents();
     }
 
     private void initComponents() {
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         this.add(Box.createRigidArea(new Dimension(0,25)));
-        captionComponent = new CaptionComponent("Добавление продукта в магазин", GuiApp.WIDTH_WINDOW, 30);
-        this.add(captionComponent);
-        infoComponent = new InfoComponent("", GuiApp.WIDTH_WINDOW,27);
+        captionComponent = new CaptionComponent("Редактирование категории", GuiApp.WIDTH_WINDOW, 31);
+        this.add(captionComponent); 
+        infoComponent = new InfoComponent("", GuiApp.WIDTH_WINDOW, 30);
         this.add(infoComponent);
         this.add(Box.createRigidArea(new Dimension(0,10)));
-        productName = new EditComponent("Название продукта:", 240, 30, 300);
-        this.add(productName);
-        productPrice = new EditComponent("Стоимость продукта:", 240, 30, 300);
-        this.add(productPrice);
-        listCategoriesComponent = new ListCategoriesComponent("Категории:", 650, 120, 300);
-        this.add(listCategoriesComponent);
-        quantityComponent = new EditComponent("Количество экземпляров:", 240, 30, 50);
-        this.add(quantityComponent);
-        buttonComponent = new ButtonComponent("Добавить продукт", GuiApp.WIDTH_WINDOW, 30, 350, 150);
+        comboBoxCategoriesComponent = new ComboBoxCategoriesComponent("Категории", 240, 30, 300);
+        this.add(comboBoxCategoriesComponent);
+        this.add(Box.createRigidArea(new Dimension(0,10)));
+        nameComponent = new EditComponent("Название категории:", 240, 30, 300);
+        this.add(nameComponent);
+        buttonComponent = new ButtonComponent("Изменить категорию", GuiApp.WIDTH_WINDOW, 30, 350, 150);
         this.add(buttonComponent);
-        buttonComponent.getButton().addActionListener(new ActionListener() {
+               buttonComponent.getButton().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Product product = new Product();
-                if(productName.getEditor().getText().isEmpty()){
+                Category updateCategory = categoryFacade.find(editCategory.getId());
+                if(nameComponent.getEditor().getText().isEmpty()){
                     infoComponent.getInfo().setForeground(Color.red);
-                    infoComponent.getInfo().setText("Введите название продукта");
+                    infoComponent.getInfo().setText("Введите название категории продукта");
                     return;
                 }
-                product.setProductname(productName.getEditor().getText());
+                updateCategory.setCategoryName(nameComponent.getEditor().getText());
                 
-                if(productPrice.getEditor().getText().isEmpty()){
-                    infoComponent.getInfo().setForeground(Color.red);
-                    infoComponent.getInfo().setText("Введите цену продукта");
-                    return;
-                }
-                product.setPrice(Integer.parseInt(productPrice.getEditor().getText()));
+                CategoryFacade categoryFacade = new CategoryFacade(Category.class);
                 
-                List<Category> categoriesProduct = listCategoriesComponent.getList().getSelectedValuesList();
-                if(categoriesProduct.isEmpty()){
-                    infoComponent.getInfo().setForeground(Color.red);
-                    infoComponent.getInfo().setText("Выберите категорию продукта");
-                    return;
-                }
-                product.setCategory(categoriesProduct);
                 try {
-                    product.setQuantity(Integer.parseInt(quantityComponent.getEditor().getText()));
-                    product.setCount(product.getQuantity());
-                } catch (Exception ex) {
-                    infoComponent.getInfo().setForeground(Color.red);
-                    infoComponent.getInfo().setText("Введите количество продукта (цифрами)");
-                    return;
-                }
-                ProductFacade productFacade = new ProductFacade(Product.class);
-                try {
-                    productFacade.create(product);
+                    categoryFacade.create(updateCategory);
+                    infoComponent.getInfo().setText("Категория успешно изменена");
                     infoComponent.getInfo().setForeground(Color.BLUE);
-                    infoComponent.getInfo().setText("Продукт успешно добавлен");
-                    productName.getEditor().setText("");
-                    productPrice.getEditor().setText("");
-                    quantityComponent.getEditor().setText("");
-                    listCategoriesComponent.getList().clearSelection();
+                    comboBoxCategoriesComponent.getComboBox().setModel(comboBoxCategoriesComponent.getComboBoxModel());
+                    comboBoxCategoriesComponent.getComboBox().setSelectedIndex(-1);
                 } catch (Exception ex) {
-                    infoComponent.getInfo().setForeground(Color.RED);
-                    infoComponent.getInfo().setText("Продукт добавить не удалось");
+                    infoComponent.getInfo().setForeground(Color.red);
+                    infoComponent.getInfo().setText("Категорию изменить не удалось");
                 }
             }
         });
+        comboBoxCategoriesComponent.getComboBox().addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                JComboBox comboBox = (JComboBox) e.getSource();
+                if (comboBox.getSelectedIndex() == -1) {
+                    nameComponent.getEditor().setText("");
+                }else{
+                    editCategory = (Category) e.getItem();
+                    nameComponent.getEditor().setText(editCategory.getCategoryName());
+                }
+            }
+        }); {
+        
+    
     }
+    
+    
+}
+    
 }

@@ -6,6 +6,8 @@
 package gui.components.renderers;
 
 import entity.Category;
+import entity.Product;
+import entity.History;
 import java.awt.Color;
 import java.awt.Component;
 import javax.swing.DefaultListCellRenderer;
@@ -17,7 +19,7 @@ import javax.swing.UIManager;
  *
  * @author Melnikov
  */
-public class ListCategoryCellRenderer extends DefaultListCellRenderer{
+public class ListHistoriesCellRenderer extends DefaultListCellRenderer{
     private final Color background = new Color(0, 100, 255, 15);
     private final Color defaultBackground = (Color) UIManager.get("List.background");
     @Override
@@ -27,10 +29,17 @@ public class ListCategoryCellRenderer extends DefaultListCellRenderer{
                 isSelected, cellHasFocus);
             if(component instanceof JLabel){
                 JLabel label = (JLabel) component;
-                Category category = (Category) value;
-                if(category == null) return component;
-                label.setText(String.format("%s."
-                        ,category.getCategoryName()
+                History history = (History) value;
+                if(history == null) return component;
+                StringBuilder sb = new StringBuilder();
+                for (Category category : history.getProduct().getCategory()) {
+                    sb.append(category.getCategoryName())
+                      .append(". ");
+                }
+                label.setText(String.format("%s. %s %d."
+                        ,history.getProduct().getProductname()
+                        ,sb.toString()
+                        ,history.getProduct().getQuantity()
                 ));
                 if(!isSelected){
                     label.setBackground(index % 2 == 0 ? background : defaultBackground);

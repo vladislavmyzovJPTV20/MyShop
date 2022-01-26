@@ -6,98 +6,76 @@
 package gui.components.customer;
 
 import gui.components.*;
-import entity.Product;
 import entity.Category;
+import entity.Product;
+import entity.History;
 import facade.ProductFacade;
+import facade.HistoryFacade;
 import gui.GuiApp;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Calendar;
 import java.util.List;
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
 
+/**
+ *
+ * @author Melnikov
+ */
 public class ReturnProductComponent extends JPanel{
+    private HistoryFacade historyFacade;
     private CaptionComponent captionComponent;
     private InfoComponent infoComponent;
-    private EditComponent productName;
-    private EditComponent productPrice;
+    private ListHistoriesComponent listHistoriesComponent;
+    private EditComponent nameBookComponent;
+    private ListCategoriesComponent listCategoriesComponent;
+    private EditComponent publishedYearComponent;
     private EditComponent quantityComponent;
     private ButtonComponent buttonComponent;
-    private ListCategoriesComponent listCategoriesComponent;
-    
     public ReturnProductComponent() {
+        historyFacade = new HistoryFacade(History.class);
         initComponents();
     }
 
     private void initComponents() {
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        this.setPreferredSize(new Dimension(GuiApp.WIDTH_WINDOW, GuiApp.HEIGHT_WINDOW));
+        this.setMinimumSize(this.getPreferredSize());
+        this.setMaximumSize(this.getPreferredSize());
+        this.setBorder(BorderFactory.createLineBorder(Color.yellow));
         this.add(Box.createRigidArea(new Dimension(0,25)));
-        captionComponent = new CaptionComponent("Добавление продукта в магазин", GuiApp.WIDTH_WINDOW, 30);
+        captionComponent = new CaptionComponent("Возврат просроченного продукта в магазин", GuiApp.WIDTH_WINDOW, 30);
+        captionComponent.setBorder(BorderFactory.createLineBorder(Color.red));
         this.add(captionComponent);
         infoComponent = new InfoComponent("", GuiApp.WIDTH_WINDOW,27);
+        infoComponent.setBorder(BorderFactory.createLineBorder(Color.red));
         this.add(infoComponent);
         this.add(Box.createRigidArea(new Dimension(0,10)));
-        productName = new EditComponent("Название продукта:", 240, 30, 300);
-        this.add(productName);
-        productPrice = new EditComponent("Стоимость продукта:", 240, 30, 300);
-        this.add(productPrice);
-        listCategoriesComponent = new ListCategoriesComponent("Категории:", 650, 120, 300);
-        this.add(listCategoriesComponent);
-        quantityComponent = new EditComponent("Количество экземпляров:", 240, 30, 50);
-        this.add(quantityComponent);
-        buttonComponent = new ButtonComponent("Добавить продукт", GuiApp.WIDTH_WINDOW, 30, 350, 150);
+        listHistoriesComponent = new ListHistoriesComponent(false,"Купленные продукты", 10, GuiApp.HEIGHT_WINDOW - 50, GuiApp.WIDTH_WINDOW);
+        this.add(listHistoriesComponent);
+        buttonComponent = new ButtonComponent("Вернуть продукт",GuiApp.WIDTH_WINDOW, 30, 200,150);
         this.add(buttonComponent);
         buttonComponent.getButton().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Product product = new Product();
-                if(productName.getEditor().getText().isEmpty()){
+                List<History> historyReturnBooks = listHistoriesComponent.getList().getSelectedValuesList(); 
+                if(historyReturnBooks.isEmpty()){
                     infoComponent.getInfo().setForeground(Color.red);
-                    infoComponent.getInfo().setText("Введите название продукта");
+                    infoComponent.getInfo().setText("Выберите название продукта");
                     return;
                 }
-                product.setProductname(productName.getEditor().getText());
-                
-                if(productPrice.getEditor().getText().isEmpty()){
-                    infoComponent.getInfo().setForeground(Color.red);
-                    infoComponent.getInfo().setText("Введите цену продукта");
-                    return;
-                }
-                product.setPrice(Integer.parseInt(productPrice.getEditor().getText()));
-                
-                List<Category> categoriesProduct = listCategoriesComponent.getList().getSelectedValuesList();
-                if(categoriesProduct.isEmpty()){
-                    infoComponent.getInfo().setForeground(Color.red);
-                    infoComponent.getInfo().setText("Выберите категорию продукта");
-                    return;
-                }
-                product.setCategory(categoriesProduct);
-                try {
-                    product.setQuantity(Integer.parseInt(quantityComponent.getEditor().getText()));
-                    product.setCount(product.getQuantity());
-                } catch (Exception ex) {
-                    infoComponent.getInfo().setForeground(Color.red);
-                    infoComponent.getInfo().setText("Введите количество продукта (цифрами)");
-                    return;
-                }
-                ProductFacade productFacade = new ProductFacade(Product.class);
-                try {
-                    productFacade.create(product);
-                    infoComponent.getInfo().setForeground(Color.BLUE);
-                    infoComponent.getInfo().setText("Продукт успешно добавлен");
-                    productName.getEditor().setText("");
-                    productPrice.getEditor().setText("");
-                    quantityComponent.getEditor().setText("");
-                    listCategoriesComponent.getList().clearSelection();
-                } catch (Exception ex) {
-                    infoComponent.getInfo().setForeground(Color.RED);
-                    infoComponent.getInfo().setText("Продукт добавить не удалось");
+                for (int i = 0; i < historyReturnBooks.size(); i++) {
+                    historyReturnBooks.get(i).setOverdueDate(Calendar.getInstance().getTime());
+                    historyFacade.edit(historyReturnBooks.get(i));
                 }
             }
-        });
-    }
+    });
+}
+    
 }
